@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "@textlint-rule/textlint-rule-no-unmatched-pair": true,
+    "@textlint-rule/textlint-rule-require-header-id": true,
+    "no-dead-link": true,
+    "no-todo": true,
+    "textlint-rule-date-weekday-mismatch": true
+  }
+}

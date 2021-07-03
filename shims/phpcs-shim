@@ -1,0 +1,37 @@
+#!/usr/bin/env php
+<?php
+
+$binary_args = array(
+  "-", "-n", "-w", "-l", "-s", "-a", "-e", "-p", "-q", "-m", "-v", "-vv",
+  "-vvv", "-i", "-d", "--help", "--version", "--colors", "--no-colors",
+  "--cache", "--no-cache", "--ignore-annotations"
+);
+
+$command = ["phpcs"];
+$processing_args = array_slice($argv, 1);
+
+while (count($processing_args) > 0) {
+    $arg = array_shift($processing_args);
+
+    if (array_search($arg, $binary_args) or $arg == "-") {
+        array_push($command, $arg);
+    } else {
+        array_push(
+            $command,
+            $arg . "=" . escapeshellarg(array_shift($processing_args))
+        );
+    }
+}
+
+$descriptors = [STDIN, STDOUT, STDOUT];
+$pipes = [];
+$command = join(" ", $command);
+$process = proc_open($command, $descriptors, $pipes, getcwd(), $_ENV);
+
+if (!is_resource($process)) {
+    die("Unable to execute php-code-sniffer");
+}
+
+$exitcode = proc_close($process);
+
+exit($exitcode);

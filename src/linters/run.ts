@@ -1,0 +1,303 @@
+import * as vscode from "vscode";
+import * as childProcess from "child_process";
+import * as path from "path";
+import * as fs from "fs";
+import * as linters from ".";
+import { Linter, LinterConfig, LinterOffense } from "vscode-linter-api";
+import { Config } from "../types.d";
+import { getAvailableLinters } from "../helpers/getAvailableLinters";
+import { expandCommand } from "../helpers/expandCommand";
+import { getLinterConfig } from "../helpers/getLinterConfig";
+import { getEditor } from "../helpers/getEditor";
+import { getIndent } from "../helpers/getIndent";
+import { debug } from "../helpers/debug";
+
+export async function run(
+  document: vscode.TextDocument,
+  diagnosticCollection: vscode.DiagnosticCollection,
+  offenses: LinterOffense[],
+) {
+  if (["code-runner-output"].includes(document.languageId)) {
+    return;
+  }
+
+  const config = vscode.workspace.getConfiguration(
+    "linter",
+  ) as unknown as Config;
+
+  const availableLinters = getAvailableLinters();
+  const matchingLinters = Object.keys(availableLinters).filter((name) =>
+    availableLinters[name].languages.includes(document.languageId),
+  );
+  const diagnostics: vscode.Diagnostic[] = [];
+  const contents = document.getText();
+
+  if (!matchingLinters.length) {
+    debug("No linters found for", JSON.stringify(document.languageId));
+  }
+
+  offenses.length = 0;
+
+  for (let linterName of matchingLinters) {
+    const linterConfig = availableLinters[linterName];
+
+    if (!linterConfig.enabled) {
+      debug(`${linterName}`, "linter is disabled, so skipping.");
+      continue;
+    }
+
+    const rootDir = findRootDir(document.uri);
+    const configFile = findConfigFile(document.uri, linterConfig.configFiles);
+
+    const command = expandCommand(linterConfig, {
+      $file: document.uri.path,
+      $extension: path.extname(document.uri.path).toLowerCase(),
+      $config: configFile,
+      $debug: config.debug,
+      $lint: true,
+      $language: document.languageId,
+    });
+
+    debug({
+      rootDir,
+      configFile,
+      command,
+    });
+
+    offenses.push(
+      ...runLinter(
+        document.uri,
+        contents,
+        rootDir,
+        linters.get(linterConfig),
+        command,
+      ),
+    );
+  }
+
+  offenses.forEach((offense) => {
+    diagnostics.push({
+      code: offense.code,
+      source: offense.source,
+      message: offense.message,
+      range: new vscode.Range(
+        new vscode.Position(offense.lineStart, offense.columnStart),
+        new vscode.Position(offense.lineEnd, offense.columnEnd),
+      ),
+      severity: offense.severity as unknown as vscode.DiagnosticSeverity,
+    });
+  });
+
+  diagnosticCollection.clear();
+  diagnosticCollection.set(document.uri, diagnostics);
+}
+
+function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
+  if (!configFiles.length) {
+    return "";
+  }
+
+  const dirs = uri.path.split("/").slice(0, -1);
+
+  while (dirs.length > 0) {
+    for (let candidate of configFiles) {
+      const configFile = path.resolve(dirs.join("/"), candidate);
+
+      if (fs.existsSync(configFile)) {
+        return configFile;
+      }
+    }
+
+    dirs.pop();
+  }
+
+  return "";
+}
+
+function isBinWithinPath(bin: string): boolean {
+  const dirs = process.env.PATH?.split(":").filter(Boolean) ?? [];
+
+  return dirs.some((dir) => {
+    try {
+      return (
+        fs.accessSync(path.join(dir, bin), fs.constants.X_OK) === undefined
+      );
+    } catch (error) {
+      return false;
+    }
+  });
+}
+
+function runLinter(
+  uri: vscode.Uri,
+  input: string,
+  rootDir: string,
+  linter: Linter,
+  command: string[],
+): LinterOffense[] {
+  try {
+    if (!command[0].includes("/") && !isBinWithinPath(command[0])) {
+      debug(
+        `The ${command[0]} binary couldn't be found within $PATH:`,
+        process.env.PATH?.split(":").filter(Boolean),
+      );
+
+      return [];
+    }
+
+    const result = childProcess.spawnSync(command[0], command.slice(1), {
+      input,
+      env: process.env,
+      cwd: rootDir,
+    });
+
+    if (result.error) {
+      debug(`Error while running "${command[0]}":`, result.error.message);
+      return [];
+    }
+
+    const params = {
+      uri,
+      stdout: result.stdout?.toString() ?? "",
+      stderr: result.stderr?.toString() ?? "",
+      status: result.status ?? 0,
+    };
+
+    return linter.getOffenses(params);
+  } catch (error) {
+    debug(error);
+    return [];
+  }
+}
+
+function findRootDir(uri: vscode.Uri): string {
+  const rootDirUri =
+    vscode.workspace.getWorkspaceFolder(uri)?.uri ||
+    vscode.Uri.parse(path.resolve(uri.path, ".."));
+
+  return rootDirUri.path;
+}
+
+export function fix(
+  offense: LinterOffense,
+  editor: vscode.TextEditor,
+  type: string,
+) {
+  const input = editor.document.getText();
+  const rootDir = findRootDir(offense.uri);
+  const linterConfig = getLinterConfig(offense.source);
+  const configFile = findConfigFile(offense.uri, linterConfig.configFiles);
+  const command = expandCommand(linterConfig, {
+    $file: offense.uri.path,
+    $extension: path.extname(offense.uri.path).toLowerCase(),
+    $code: offense.code,
+    $fixAll: type === "fix-all",
+    $fixOne: type === "fix-one",
+    $fixCategory: type === "fix-category",
+    $config: configFile,
+    $debug: vscode.workspace.getConfiguration("linter").debug,
+    $language: editor.document.languageId,
+  });
+  const linter: Linter = linters.get(linterConfig);
+
+  if (!linter.parseFixOutput) {
+    debug(linterConfig.name, "didn't implement `parseFixOutput(params)`");
+
+    return;
+  }
+
+  try {
+    const result = childProcess.spawnSync(command[0], command.slice(1), {
+      input,
+      env: process.env,
+      cwd: rootDir,
+    });
+
+    editor.edit((change) => {
+      const firstLine = editor.document.lineAt(0);
+      const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+      const range = new vscode.Range(firstLine.range.start, lastLine.range.end);
+
+      change.replace(
+        range,
+        linter.parseFixOutput!({
+          input,
+          stdout: result.stdout.toString(),
+          stderr: result.stderr.toString(),
+        }),
+      );
+    });
+  } catch (error) {
+    debug(error);
+  }
+}
+
+export function ignore(offense: LinterOffense, type: string) {
+  const linterConfig: LinterConfig = getLinterConfig(offense.source);
+  const linter: Linter = linters.get(linterConfig);
+  const editor = getEditor(offense.uri);
+
+  const funcs = {
+    "ignore-eol": "getIgnoreEolPragma(params)",
+    "ignore-file": "getIgnoreFilePragma(params)",
+    "ignore-line": "getIgnoreLinePragma(params)",
+  };
+
+  const passed = {
+    "ignore-eol": Boolean(linter.getIgnoreEolPragma),
+    "ignore-file": Boolean(linter.getIgnoreFilePragma),
+    "ignore-line": Boolean(linter.getIgnoreLinePragma),
+  };
+
+  if (!editor) {
+    return;
+  }
+
+  if (!passed[type as keyof typeof passed]) {
+    debug(
+      linterConfig.name,
+      "didn't implement the function",
+      `"${funcs[type as keyof typeof funcs]}"`,
+    );
+    return;
+  }
+
+  let line: vscode.TextLine;
+  let replacement: string | undefined = undefined;
+
+  if (type === "ignore-eol") {
+    line = editor.document.lineAt(offense.lineStart);
+    replacement = linter.getIgnoreEolPragma!({
+      line: { text: line.text, number: offense.lineStart },
+      code: offense.code,
+    });
+  }
+
+  if (type === "ignore-file") {
+    line = editor.document.lineAt(0);
+    const indent = getIndent(line.text);
+    replacement = linter.getIgnoreFilePragma!({
+      line: { text: line.text, number: 0 },
+      code: offense.code,
+      indent,
+    });
+  }
+
+  if (type === "ignore-line") {
+    line = editor.document.lineAt(Math.max(0, offense.lineStart - 1));
+    const indent = getIndent(editor.document.lineAt(offense.lineStart).text);
+    replacement = linter.getIgnoreLinePragma!({
+      line: { number: offense.lineStart, text: line.text },
+      code: offense.code,
+      indent,
+    });
+  }
+
+  if (replacement === undefined) {
+    debug(linterConfig.name, "didn't return a replacement fix.");
+
+    return;
+  }
+
+  editor.edit((change) => change.replace(line.range, replacement!));
+}
