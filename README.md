@@ -35,12 +35,12 @@ Install the extension by visiting
 <https://marketplace.visualstudio.com/items?itemName=fnando.linter> or searching
 for `fnando.linter`.
 
-Linter you use the binary that's on your `$PATH`; if your file is not being
+Linter will use the binary that's on your `$PATH`; if your file is not being
 linted, check the "linter" output panel for additional information.
 
 ![Output panel](https://github.com/fnando/vscode-linter/raw/main/docs/images/output.png)
 
-You can tweak your linters' configuration by editing only the nodes you need;
+You can tweak your linters configuration by editing only the nodes you need;
 for instance, to disable a linter, all you need is something like this:
 
 ```json
