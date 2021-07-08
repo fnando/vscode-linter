@@ -28,6 +28,7 @@ Features:
 - Ignore rules (end-of line, file, or current line).
 - Fix files (depends on linter's support).
 - Add links to rule's documentation.
+- Linters are lazy loaded, so you won't waste computer memory with linters you don't use.
 
 ## Usage
 
