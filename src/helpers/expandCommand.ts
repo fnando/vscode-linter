@@ -46,7 +46,7 @@ export function expandCommand(
   args = expandArgs(linterConfig, args);
 
   const command = linterConfig.command
-    .flatMap((entry) => {
+    .flatMap((entry: any) => {
       if (!isArray(entry)) {
         return args[entry] || entry;
       }
@@ -60,7 +60,7 @@ export function expandCommand(
       return entry.slice(1).map((item) => args[item] ?? item);
     })
     .filter(Boolean)
-    .map((entry) => `${entry}`);
+    .map((entry: any) => `${entry}`);
 
   const shim = path.join(
     vscode.extensions.getExtension("fnando.linter")!.extensionPath,

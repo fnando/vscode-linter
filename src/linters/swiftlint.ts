@@ -53,7 +53,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   return offenses;
 };
 
-export const getIgnoreFile: LinterGetIgnoreFilePragmaFunction = ({
+export const getIgnoreFilePragma: LinterGetIgnoreFilePragmaFunction = ({
   line,
   code,
 }) => {
