@@ -80,24 +80,11 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       actions.push(this.getIgnoreFileAction(params));
     }
 
-    if (
-      params.linterConfig.capabilities.includes("ignore-line") &&
-      params.offense.correctable
-    ) {
+    if (params.linterConfig.capabilities.includes("ignore-line")) {
       actions.push(this.getIgnoreLineAction(params));
     }
 
-    if (
-      params.linterConfig.capabilities.includes("ignore-eol") &&
-      params.offense.correctable
-    ) {
-      actions.push(this.getIgnoreEolAction(params));
-    }
-
-    if (
-      params.linterConfig.capabilities.includes("ignore-eol") &&
-      params.offense.correctable
-    ) {
+    if (params.linterConfig.capabilities.includes("ignore-eol")) {
       actions.push(this.getIgnoreEolAction(params));
     }
 
