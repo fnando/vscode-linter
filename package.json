@@ -167,6 +167,30 @@
               "name": "php-code-sniffer",
               "url": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
+            "proselint": {
+              "capabilities": [],
+              "command": [
+                "proselint",
+                "--json",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ],
+                "-"
+              ],
+              "configFiles": [
+                ".proselintrc"
+              ],
+              "enabled": true,
+              "languages": [
+                "markdown",
+                "html",
+                "plaintext"
+              ],
+              "name": "proselint",
+              "url": "https://github.com/amperser/proselint/"
+            },
             "pylint": {
               "capabilities": [
                 "ignore-file"

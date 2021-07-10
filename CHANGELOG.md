@@ -6,6 +6,7 @@ All notable changes to the "linter" extension will be documented in this file.
 
 - Fix swiftlint's ignore file pragma.
 - Fix conditions for ignore code actions.
+- Add proselint.
 
 ## 0.0.0
 

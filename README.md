@@ -11,6 +11,7 @@ Supports out of the box:
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
 - [markdownlint](https://github.com/DavidAnson/markdownlint)
 - [PHP CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
+- [proselint](https://github.com/amperser/proselint/)
 - [pylint](https://www.pylint.org)
 - [Reek](https://github.com/troessner/reek)
 - [RuboCop](https://rubocop.org)
@@ -28,7 +29,8 @@ Features:
 - Ignore rules (end-of line, file, or current line).
 - Fix files (depends on linter's support).
 - Add links to rule's documentation.
-- Linters are lazy loaded, so you won't waste computer memory with linters you don't use.
+- Linters are lazy loaded, so you won't waste computer memory with linters you
+  don't use.
 
 ## Usage
 
@@ -41,8 +43,8 @@ linted, check the "linter" output panel for additional information.
 
 ![Output panel](https://github.com/fnando/vscode-linter/raw/main/docs/images/output.png)
 
-You can tweak your linters configuration by editing only the nodes you need;
-for instance, to disable a linter, all you need is something like this:
+You can tweak your linters configuration by editing only the nodes you need; for
+instance, to disable a linter, all you need is something like this:
 
 ```json
 {
