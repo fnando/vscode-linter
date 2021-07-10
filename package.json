@@ -518,6 +518,32 @@
               "name": "textlint",
               "url": "https://textlint.github.io"
             },
+            "vale": {
+              "capabilities": [],
+              "command": [
+                "vale",
+                "--output",
+                "JSON",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ],
+                "--ext",
+                "$extension"
+              ],
+              "configFiles": [
+                ".vale.ini"
+              ],
+              "enabled": true,
+              "languages": [
+                "markdown",
+                "plaintext",
+                "html"
+              ],
+              "name": "vale",
+              "url": "https://github.com/errata-ai/vale"
+            },
             "yamllint": {
               "capabilities": [
                 "ignore-line"
