@@ -104,6 +104,23 @@
               "name": "hadolint",
               "url": "https://github.com/hadolint/hadolint"
             },
+            "language-tool": {
+              "capabilities": [],
+              "command": [
+                "languagetool",
+                "--json",
+                "--autoDetect"
+              ],
+              "configFiles": [],
+              "enabled": true,
+              "languages": [
+                "markdown",
+                "html",
+                "plaintext"
+              ],
+              "name": "language-tool",
+              "url": "https://github.com/languagetool-org/languagetool"
+            },
             "markdownlint": {
               "capabilities": [],
               "command": [
@@ -618,7 +635,10 @@
     "stylelint",
     "swiftlint",
     "textlint",
-    "yamllint"
+    "yamllint",
+    "language tool",
+    "vale",
+    "proselint"
   ],
   "main": "./dist/extension.js",
   "name": "linter",

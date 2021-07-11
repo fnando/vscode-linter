@@ -9,6 +9,7 @@ Supports out of the box:
 
 - [ESLint](https://eslint.org)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
+- [Language Tool](https://github.com/hadolint/hadolint)
 - [markdownlint](https://github.com/DavidAnson/markdownlint)
 - [PHP CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 - [proselint](https://github.com/amperser/proselint/)
@@ -21,6 +22,7 @@ Supports out of the box:
 - [stylelint](https://stylelint.io)
 - [swiftlint](https://realm.github.io/SwiftLint/)
 - [textlint](https://textlint.github.io)
+- [Vale](https://github.com/errata-ai/vale)
 - [yamllint](https://github.com/adrienverge/yamllint)
 
 Features:
