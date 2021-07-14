@@ -7,6 +7,7 @@ through an extension framework.
 
 Supports out of the box:
 
+- [Brakeman](https://brakemanscanner.org)
 - [ESLint](https://eslint.org)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
 - [Language Tool](https://github.com/hadolint/hadolint)

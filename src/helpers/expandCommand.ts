@@ -4,10 +4,29 @@ import * as path from "path";
 import * as fs from "fs";
 import { LinterConfig } from "vscode-linter-api";
 
-function expandArgs(
-  linterConfig: LinterConfig,
-  args: { [key: string]: unknown },
-): { [key: string]: unknown } {
+type Args = { [key: string]: unknown };
+
+const extraArgs: {
+  [key: string]: (args: Args) => boolean;
+} = {
+  "$is-rails": (args): boolean => {
+    const gemfile = [
+      path.join(args["$rootDir"] as string, "Gemfile"),
+      path.join(args["$rootDir"] as string, "Gemfile.rb"),
+      path.join(args["$rootDir"] as string, "gems.rb"),
+    ].find((entry) => fs.existsSync(entry));
+
+    return Boolean(
+      gemfile &&
+        fs
+          .readFileSync(gemfile)
+          .toString()
+          .match(/^gem ("rails"|'rails')/gm),
+    );
+  },
+};
+
+function expandArgs(linterConfig: LinterConfig, args: Args): Args {
   const additionalArgs = Object.keys(linterConfig.args ?? {}).reduce(
     (buffer, name) => {
       let value = true;
@@ -31,6 +50,10 @@ function expandArgs(
   );
 
   args = { ...args, ...additionalArgs };
+
+  (linterConfig.when ?? []).forEach((name) => {
+    args[name] = extraArgs[name]?.call(null, args);
+  });
 
   return Object.keys(args).reduce(
     (buffer, key) =>

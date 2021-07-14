@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add Brakeman.
+
 ## 0.0.1
 
 - Fix swiftlint's ignore file pragma.

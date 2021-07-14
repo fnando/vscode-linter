@@ -11,6 +11,7 @@ import { getLinterConfig } from "../helpers/getLinterConfig";
 import { getEditor } from "../helpers/getEditor";
 import { getIndent } from "../helpers/getIndent";
 import { debug } from "../helpers/debug";
+import { findRootDir } from "../helpers/findRootDir";
 
 export async function run(
   document: vscode.TextDocument,
@@ -50,6 +51,7 @@ export async function run(
     const configFile = findConfigFile(document.uri, linterConfig.configFiles);
 
     const command = expandCommand(linterConfig, {
+      $rootDir: rootDir,
       $file: document.uri.path,
       $extension: path.extname(document.uri.path).toLowerCase(),
       $config: configFile,
@@ -65,7 +67,7 @@ export async function run(
     });
 
     offenses.push(
-      ...runLinter(
+      ...lint(
         document.uri,
         contents,
         rootDir,
@@ -128,7 +130,7 @@ function isBinWithinPath(bin: string): boolean {
   });
 }
 
-function runLinter(
+function lint(
   uri: vscode.Uri,
   input: string,
   rootDir: string,
@@ -170,14 +172,6 @@ function runLinter(
   }
 }
 
-function findRootDir(uri: vscode.Uri): string {
-  const rootDirUri =
-    vscode.workspace.getWorkspaceFolder(uri)?.uri ||
-    vscode.Uri.parse(path.resolve(uri.path, ".."));
-
-  return rootDirUri.path;
-}
-
 export function fix(
   offense: LinterOffense,
   editor: vscode.TextEditor,
@@ -188,6 +182,7 @@ export function fix(
   const linterConfig = getLinterConfig(offense.source);
   const configFile = findConfigFile(offense.uri, linterConfig.configFiles);
   const command = expandCommand(linterConfig, {
+    $rootDir: rootDir,
     $file: offense.uri.path,
     $extension: path.extname(offense.uri.path).toLowerCase(),
     $code: offense.code,

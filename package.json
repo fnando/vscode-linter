@@ -20,6 +20,41 @@
         },
         "linter.linters": {
           "default": {
+            "brakeman": {
+              "capabilities": [],
+              "command": [
+                "brakeman",
+                "--format",
+                "json",
+                "--no-progress",
+                "--quiet",
+                "--absolute-paths",
+                [
+                  "$config",
+                  "--config-file",
+                  "$config"
+                ],
+                "$rootDir"
+              ],
+              "configFiles": [
+                "brakeman.yml",
+                "config/brakeman.yml",
+                ".brakeman/config.yml"
+              ],
+              "enabled": true,
+              "languages": [
+                "ruby",
+                "ruby-puma",
+                "ruby-bundler",
+                "ruby-test",
+                "erb"
+              ],
+              "name": "brakeman",
+              "url": "https://brakemanscanner.org/",
+              "when": [
+                "$is-rails"
+              ]
+            },
             "eslint": {
               "capabilities": [
                 "ignore-line",
