@@ -76,6 +76,13 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       actions.push(this.getFixOneAction(params));
     }
 
+    if (
+      params.linterConfig.capabilities.includes("fix-inline") &&
+      params.offense.inlineFix
+    ) {
+      actions.push(this.getFixInlineAction(params));
+    }
+
     if (params.linterConfig.capabilities.includes("ignore-file")) {
       actions.push(this.getIgnoreFileAction(params));
     }
@@ -140,6 +147,25 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       title: "",
       command: "linter.fix",
       arguments: [offense, "fix-one"],
+    };
+
+    return action;
+  }
+
+  private getFixInlineAction({
+    linterConfig,
+    diagnostic,
+    offense,
+  }: GetActionParams): vscode.CodeAction {
+    const action = new vscode.CodeAction(
+      `Fix this ${linterConfig.name}:${offense.code} offense`,
+    );
+    action.kind = vscode.CodeActionKind.QuickFix;
+    action.diagnostics = [diagnostic];
+    action.command = {
+      title: "",
+      command: "linter.fixInline",
+      arguments: [offense],
     };
 
     return action;

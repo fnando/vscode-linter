@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { debounce } from "lodash";
 import { LinterOffense } from "vscode-linter-api";
 import { CodeActionProvider } from "./CodeActionProvider";
-import { run, fix, ignore } from "./linters/run";
+import { run, fix, fixInline, ignore } from "./linters/run";
 import { getEditor } from "./helpers/getEditor";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -46,6 +46,19 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (editor) {
           runFix(offense, editor, type);
+        }
+      },
+    ),
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "linter.fixInline",
+      (offense: LinterOffense) => {
+        const editor = getEditor(offense.uri);
+
+        if (editor) {
+          fixInline(offense, editor);
         }
       },
     ),

@@ -17,7 +17,7 @@ interface TextlintOffense {
   line: number;
   column: number;
   severity: number;
-  fix?: unknown;
+  fix?: { range: [number, number]; text: string };
 }
 
 const offenseSeverity: { [key: string]: LinterOffenseSeverity } = {
@@ -25,7 +25,11 @@ const offenseSeverity: { [key: string]: LinterOffenseSeverity } = {
   2: LinterOffenseSeverity.error,
 };
 
-export const getOffenses: LinterGetOffensesFunction = ({ stdout, stderr, uri }) => {
+export const getOffenses: LinterGetOffensesFunction = ({
+  stdout,
+  stderr,
+  uri,
+}) => {
   if (!stdout) {
     debug("textlint: stdout was empty, but here's stderr:", { stderr });
 
@@ -35,22 +39,31 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, stderr, uri }) 
   const result: TextlintPayload = JSON.parse(stdout);
   const offenses: LinterOffense[] = [];
 
-  result[0].messages.forEach((offense) => {
-    const lineStart = Math.max(0, offense.line - 1);
-    const columnStart = Math.max(0, offense.column - 1);
+  result[0].messages.forEach((item) => {
+    const lineStart = Math.max(0, item.line - 1);
+    const columnStart = Math.max(0, item.column - 1);
 
-    offenses.push({
-      severity: offenseSeverity[offense.severity],
-      message: offense.message.trim(),
+    const offense: LinterOffense = {
+      severity: offenseSeverity[item.severity],
+      message: item.message.trim(),
       lineStart,
       lineEnd: lineStart,
       columnStart,
       columnEnd: columnStart,
       correctable: false,
-      code: offense.ruleId,
+      code: item.ruleId,
       uri,
       source: "textlint",
-    });
+    };
+
+    if (item.fix) {
+      offense.inlineFix = {
+        replacement: item.fix.text,
+        offset: item.fix.range,
+      };
+    }
+
+    offenses.push(offense);
   });
 
   return offenses;

@@ -19,7 +19,12 @@ export interface EslintOffense {
   messageId: string;
   endLine?: number;
   endColumn?: number;
-  fix?: unknown;
+  fix?: EslintFix;
+}
+
+interface EslintFix {
+  text: string;
+  range: number[];
 }
 
 const offenseSeverity: { [key: string]: LinterOffenseSeverity } = {
@@ -34,20 +39,29 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   const result = JSON.parse(stdout);
   const offenses: LinterOffense[] = [];
 
-  result[0].messages.forEach((offense: EslintOffense) => {
-    offenses.push({
+  result[0].messages.forEach((item: EslintOffense) => {
+    const offense: LinterOffense = {
       uri,
-      lineStart: Math.max(0, offense.line - 1),
-      columnStart: Math.max(0, offense.column - 1),
-      lineEnd: Math.max(0, (offense.endLine ?? offense.line) - 1),
-      columnEnd: Math.max(0, (offense.endColumn ?? offense.column) - 1),
-      code: offense.ruleId,
-      message: offense.message,
-      severity: offenseSeverity[offense.severity],
+      lineStart: Math.max(0, item.line - 1),
+      columnStart: Math.max(0, item.column - 1),
+      lineEnd: Math.max(0, (item.endLine ?? item.line) - 1),
+      columnEnd: Math.max(0, (item.endColumn ?? item.column) - 1),
+      code: item.ruleId,
+      message: item.message,
+      severity: offenseSeverity[item.severity],
       source: "eslint",
-      correctable: Boolean(offense.fix),
-      docsUrl: getDocsUrl(offense.ruleId),
-    });
+      correctable: Boolean(item.fix),
+      docsUrl: getDocsUrl(item.ruleId),
+    };
+
+    if (item.fix) {
+      offense.inlineFix = {
+        replacement: item.fix.text,
+        offset: item.fix.range as [number, number],
+      };
+    }
+
+    offenses.push(offense);
   });
 
   return offenses;

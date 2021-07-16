@@ -60,7 +60,8 @@
                 "ignore-line",
                 "ignore-file",
                 "fix-one",
-                "fix-all"
+                "fix-all",
+                "fix-inline"
               ],
               "command": [
                 "eslint",
@@ -157,7 +158,9 @@
               "url": "https://github.com/languagetool-org/languagetool"
             },
             "markdownlint": {
-              "capabilities": [],
+              "capabilities": [
+                "fix-inline"
+              ],
               "command": [
                 "markdownlint",
                 "--json",
@@ -536,7 +539,9 @@
               "url": "https://realm.github.io/SwiftLint/"
             },
             "textlint": {
-              "capabilities": [],
+              "capabilities": [
+                "fix-inline"
+              ],
               "command": [
                 "textlint",
                 "--format",

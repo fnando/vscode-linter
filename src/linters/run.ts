@@ -252,6 +252,29 @@ function lint({
   }
 }
 
+export function fixInline(offense: LinterOffense, editor: vscode.TextEditor) {
+  if (!offense.inlineFix) {
+    debug("Tried to inline fix, but offense has no fix", offense);
+    return;
+  }
+
+  const { inlineFix } = offense;
+  let range: vscode.Range;
+
+  if ("offset" in inlineFix) {
+    const start = editor.document.positionAt(inlineFix.offset[0]);
+    const end = editor.document.positionAt(inlineFix.offset[1]);
+    range = new vscode.Range(start, end);
+  } else {
+    range = new vscode.Range(
+      new vscode.Position(inlineFix.start.line, inlineFix.start.column),
+      new vscode.Position(inlineFix.end.line, inlineFix.end.column),
+    );
+  }
+
+  editor.edit((change) => change.replace(range, inlineFix.replacement));
+}
+
 export function fix(
   offense: LinterOffense,
   editor: vscode.TextEditor,
