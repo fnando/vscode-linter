@@ -2,9 +2,10 @@ import * as vscode from "vscode";
 import * as childProcess from "child_process";
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
 import * as linters from ".";
 import { Linter, LinterConfig, LinterOffense } from "vscode-linter-api";
-import { Config } from "../types.d";
+import { Config, Linters } from "../types.d";
 import { getAvailableLinters } from "../helpers/getAvailableLinters";
 import { expandCommand } from "../helpers/expandCommand";
 import { getLinterConfig } from "../helpers/getLinterConfig";
@@ -12,33 +13,71 @@ import { getEditor } from "../helpers/getEditor";
 import { getIndent } from "../helpers/getIndent";
 import { debug } from "../helpers/debug";
 import { findRootDir } from "../helpers/findRootDir";
+import { md5 } from "../helpers/md5";
+import * as cache from "../helpers/cache";
 
-export async function run(
+function convertOffenseToDiagnostic(offense: LinterOffense): vscode.Diagnostic {
+  return {
+    code: offense.code,
+    source: offense.source,
+    message: offense.message,
+    range: new vscode.Range(
+      new vscode.Position(offense.lineStart, offense.columnStart),
+      new vscode.Position(offense.lineEnd, offense.columnEnd),
+    ),
+    severity: offense.severity as unknown as vscode.DiagnosticSeverity,
+  };
+}
+
+function getCacheFilePath(
+  linterName: string,
   document: vscode.TextDocument,
-  diagnosticCollection: vscode.DiagnosticCollection,
-  offenses: LinterOffense[],
-) {
-  if (["code-runner-output"].includes(document.languageId)) {
-    return;
-  }
+): string {
+  return path.join(os.tmpdir(), linterName, md5(document.uri.path));
+}
 
-  const config = vscode.workspace.getConfiguration(
-    "linter",
-  ) as unknown as Config;
-
-  const availableLinters = getAvailableLinters();
-  const matchingLinters = Object.keys(availableLinters).filter((name) =>
-    availableLinters[name].languages.includes(document.languageId),
-  );
+function setDiagnosticsFromCache({
+  document,
+  matchingLinters,
+  diagnosticCollection,
+}: {
+  diagnosticCollection: vscode.DiagnosticCollection;
+  document: vscode.TextDocument;
+  matchingLinters: string[];
+}) {
   const diagnostics: vscode.Diagnostic[] = [];
-  const contents = document.getText();
 
-  if (!matchingLinters.length) {
-    debug("No linters found for", JSON.stringify(document.languageId));
+  for (let linterName of matchingLinters) {
+    const cacheFilePath = getCacheFilePath(linterName, document);
+
+    diagnostics.push(
+      ...((cache.read(cacheFilePath) ?? []) as LinterOffense[]).map((offense) =>
+        convertOffenseToDiagnostic(offense),
+      ),
+    );
   }
 
-  offenses.length = 0;
+  debug(
+    `setting "${document.uri.path}" diagnostics from cache:`,
+    diagnostics.length,
+  );
 
+  diagnosticCollection.set(document.uri, diagnostics);
+}
+
+function setFreshDiagnostics({
+  document,
+  matchingLinters,
+  availableLinters,
+  diagnosticCollection,
+  offenses,
+}: {
+  diagnosticCollection: vscode.DiagnosticCollection;
+  document: vscode.TextDocument;
+  matchingLinters: string[];
+  availableLinters: Linters;
+  offenses: LinterOffense[];
+}) {
   for (let linterName of matchingLinters) {
     const linterConfig = availableLinters[linterName];
 
@@ -47,6 +86,11 @@ export async function run(
       continue;
     }
 
+    const config = vscode.workspace.getConfiguration(
+      "linter",
+    ) as unknown as Config;
+    const cacheFilePath = getCacheFilePath(linterName, document);
+    const contents = document.getText();
     const rootDir = findRootDir(document.uri);
     const configFile = findConfigFile(document.uri, linterConfig.configFiles);
 
@@ -66,32 +110,62 @@ export async function run(
       command,
     });
 
-    offenses.push(
-      ...lint(
-        document.uri,
-        contents,
-        rootDir,
-        linters.get(linterConfig),
-        command,
-      ),
-    );
+    const _offenses = lint({
+      rootDir,
+      command,
+      uri: document.uri,
+      input: contents,
+      linter: linters.get(linterConfig),
+    });
+
+    offenses.push(..._offenses);
+    cache.write(cacheFilePath, _offenses);
   }
 
-  offenses.forEach((offense) => {
-    diagnostics.push({
-      code: offense.code,
-      source: offense.source,
-      message: offense.message,
-      range: new vscode.Range(
-        new vscode.Position(offense.lineStart, offense.columnStart),
-        new vscode.Position(offense.lineEnd, offense.columnEnd),
-      ),
-      severity: offense.severity as unknown as vscode.DiagnosticSeverity,
-    });
+  diagnosticCollection.set(
+    document.uri,
+    offenses.map((offense) => convertOffenseToDiagnostic(offense)),
+  );
+}
+
+export async function run(
+  document: vscode.TextDocument,
+  diagnosticCollection: vscode.DiagnosticCollection,
+  offenses: LinterOffense[],
+) {
+  if (["code-runner-output"].includes(document.languageId)) {
+    return;
+  }
+
+  const availableLinters = getAvailableLinters();
+  const matchingLinters = Object.keys(availableLinters).filter((name) =>
+    availableLinters[name].languages.includes(document.languageId),
+  );
+
+  if (!matchingLinters.length) {
+    debug("No linters found for", JSON.stringify(document.languageId));
+  }
+
+  offenses.length = 0;
+  diagnosticCollection.clear();
+
+  setDiagnosticsFromCache({
+    document,
+    matchingLinters,
+    diagnosticCollection,
   });
 
-  diagnosticCollection.clear();
-  diagnosticCollection.set(document.uri, diagnostics);
+  setTimeout(
+    () =>
+      setFreshDiagnostics({
+        offenses,
+        document,
+        matchingLinters,
+        availableLinters,
+        diagnosticCollection,
+      }),
+    0,
+  );
 }
 
 function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
@@ -130,13 +204,19 @@ function isBinWithinPath(bin: string): boolean {
   });
 }
 
-function lint(
-  uri: vscode.Uri,
-  input: string,
-  rootDir: string,
-  linter: Linter,
-  command: string[],
-): LinterOffense[] {
+function lint({
+  uri,
+  input,
+  rootDir,
+  linter,
+  command,
+}: {
+  uri: vscode.Uri;
+  input: string;
+  rootDir: string;
+  linter: Linter;
+  command: string[];
+}): LinterOffense[] {
   try {
     if (!command[0].includes("/") && !isBinWithinPath(command[0])) {
       debug(

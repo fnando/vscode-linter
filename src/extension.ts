@@ -21,9 +21,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      offenses.length = 0;
-      diagnostics.clear();
-
       if (editor) {
         runLinters(editor.document, diagnostics, offenses);
       }

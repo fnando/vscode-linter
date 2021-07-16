@@ -5,6 +5,7 @@ All notable changes to the "linter" extension will be documented in this file.
 ## Unreleased
 
 - Add Brakeman.
+- Cache linting results, and display it as soon as possible.
 
 ## 0.0.1
 
