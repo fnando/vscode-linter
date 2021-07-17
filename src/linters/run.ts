@@ -25,7 +25,7 @@ function convertOffenseToDiagnostic(offense: LinterOffense): vscode.Diagnostic {
       new vscode.Position(offense.lineStart, offense.columnStart),
       new vscode.Position(offense.lineEnd, offense.columnEnd),
     ),
-    severity: offense.severity as unknown as vscode.DiagnosticSeverity,
+    severity: (offense.severity as unknown) as vscode.DiagnosticSeverity,
   };
 }
 
@@ -50,11 +50,16 @@ function setDiagnosticsFromCache({
   for (let linterName of matchingLinters) {
     const cacheFilePath = getCacheFilePath(linterName, document);
 
-    diagnostics.push(
-      ...((cache.read(cacheFilePath) ?? []) as LinterOffense[]).map((offense) =>
-        convertOffenseToDiagnostic(offense),
-      ),
-    );
+    try {
+      diagnostics.push(
+        ...((cache.read(cacheFilePath) ??
+          []) as LinterOffense[]).map((offense) =>
+          convertOffenseToDiagnostic(offense),
+        ),
+      );
+    } catch (error) {
+      debug("Error while reading", cacheFilePath);
+    }
   }
 
   debug(
@@ -86,9 +91,9 @@ function setFreshDiagnostics({
       continue;
     }
 
-    const config = vscode.workspace.getConfiguration(
+    const config = (vscode.workspace.getConfiguration(
       "linter",
-    ) as unknown as Config;
+    ) as unknown) as Config;
     const cacheFilePath = getCacheFilePath(linterName, document);
     const contents = document.getText();
     const rootDir = findRootDir(document.uri);

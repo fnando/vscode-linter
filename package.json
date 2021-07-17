@@ -55,6 +55,28 @@
                 "$is-rails"
               ]
             },
+            "credo": {
+              "capabilities": [
+                "ignore-line",
+                "ignore-file"
+              ],
+              "command": [
+                "mix",
+                "credo",
+                "--format",
+                "json",
+                "--read-from-stdin",
+                "--all-priorities",
+                "$file"
+              ],
+              "configFiles": [],
+              "enabled": true,
+              "languages": [
+                "elixir"
+              ],
+              "name": "credo",
+              "url": "https://hexdocs.pm/credo/"
+            },
             "eslint": {
               "capabilities": [
                 "ignore-line",

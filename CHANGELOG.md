@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add credo.
+
 ## 0.0.3
 
 - Add luacheck.
@@ -18,7 +22,7 @@ All notable changes to the "linter" extension will be documented in this file.
 - Fix conditions for ignore code actions.
 - Add proselint.
 - Add vale.
-- Add Language Tool.
+- Add LanguageTool.
 
 ## 0.0.0
 

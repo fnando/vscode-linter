@@ -61,7 +61,9 @@ export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
   let existingRules: string[] = [code];
 
   if (matches) {
-    existingRules = (matches[1] ?? "").split(",").map((item) => item.trim());
+    existingRules.push(
+      ...(matches[1] ?? "").split(",").map((item) => item.trim()),
+    );
   }
 
   const pragma = [
