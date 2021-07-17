@@ -1,7 +1,19 @@
-# Linter for VSCode
+<p align="center">
+  <a href="https://gitthub.com/fnando/vscode-linter/">
+    <img width="128" height="128" src="https://github.com/fnando/vscode-linter/raw/main/icon.png" alt="Linter">
+  </a>
+  <br>
+  Extension for code linting, all in one package.
+</p>
 
-[![VSCode Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/fnando.linter)](https://marketplace.visualstudio.com/items?itemName=fnando.linter)
-[![Linter Version](https://img.shields.io/visual-studio-marketplace/v/fnando.linter?color=blue)](https://marketplace.visualstudio.com/items?itemName=fnando.linter)
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=fnando.linter">
+    <img src="https://img.shields.io/visual-studio-marketplace/i/fnando.linter" alt="VSCode Marketplace Installs">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=fnando.linter">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/fnando.linter?color=blue" alt="Linter Version">
+  </a>
+</p>
 
 ![Linter in Action](https://github.com/fnando/vscode-linter/raw/main/linter.png)
 
