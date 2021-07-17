@@ -1,6 +1,7 @@
 # Linter for VSCode
 
 [![VSCode Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/fnando.linter)](https://marketplace.visualstudio.com/items?itemName=fnando.linter)
+[![Linter Version](https://img.shields.io/visual-studio-marketplace/v/fnando.linter?color=blue)](https://marketplace.visualstudio.com/items?itemName=fnando.linter)
 
 ![Linter in Action](https://github.com/fnando/vscode-linter/raw/main/linter.png)
 
