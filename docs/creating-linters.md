@@ -701,10 +701,123 @@ index 679c705..4b53a4a 100644
 +};
 ```
 
+### Adding code for inline fixes
+
+Linter has support for inline fixes, meaning that if you set the offense's
+`inlineFix` property, a code action to fix that offense will be displayed.
+
+First, we need to indicate that our linter supports inline fix; this can be done
+by adding the `fix-inline` capability.
+
+```diff
+diff --git a/package.json b/package.json
+index 276a1d3..ce92741 100644
+--- a/package.json
++++ b/package.json
+@@ -10,6 +10,7 @@
+           "default": {
+             "capabilities": [
+               "fix-all",
++              "fix-inline",
+               "ignore-line",
+               "ignore-file"
+             ],
+```
+
+Now, we need to set the inline fix on the offense's object. This is what ESLint
+returns as a offense with a fix:
+
+```json
+{
+  "ruleId": "quotes",
+  "severity": 2,
+  "message": "Strings must use doublequote.",
+  "line": 4,
+  "column": 15,
+  "nodeType": "Literal",
+  "messageId": "wrongQuotes",
+  "endLine": 4,
+  "endColumn": 30,
+  "fix": {
+    "range": [36, 51],
+    "text": "\"change quotes\""
+  }
+}
+```
+
+To make the inline fix work, all you have to do is changing the offense to
+include the property `inlineFix` with this info:
+
+```diff
+diff --git a/src/extension.ts b/src/extension.ts
+index 4b53a4a..6386dff 100644
+--- a/src/extension.ts
++++ b/src/extension.ts
+@@ -4,6 +4,7 @@ import {
+   LinterGetOffensesFunction,
+   LinterOffenseSeverity,
+   LinterParseFixOutputFunction,
++  LinterOffense,
+ } from "vscode-linter-api";
+
+ export interface ESLintOffense {
+@@ -15,7 +16,10 @@ export interface ESLintOffense {
+     column: number;
+     endLine: number;
+     endColumn: number;
+-    fix: unknown;
++    fix?: {
++      text: string;
++      range: [number, number];
++    };
+   }[];
+ }
+
+@@ -35,7 +39,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ uri, stdout }) => {
+     const lineEnd = (offense.endLine ?? offense.line) - 1;
+     const columnEnd = (offense.endColumn ?? offense.column) - 1;
+
+-    return {
++    const linterOffense: LinterOffense = {
+       uri,
+       lineStart,
+       columnStart,
+@@ -48,6 +52,15 @@ export const getOffenses: LinterGetOffensesFunction = ({ uri, stdout }) => {
+       severity: offenseSeverity[offense.severity],
+       docsUrl: getDocsUrl(offense.ruleId),
+     };
++
++    if (offense.fix) {
++      linterOffense.inlineFix = {
++        replacement: offense.fix.text,
++        offset: offense.fix.range,
++      };
++    }
++
++    return linterOffense;
+   });
+ };
+```
+
+Notice that we're using the `offset` provided by ESLint. If your linter returns
+columns instead, then you can use the following signature:
+
+```ts
+linterOffense.inlineFix = {
+  replacement: "some text",
+  start: { line: 0, column: 0 },
+  end: { line: 0, column: 80 },
+};
+```
+
 And this pretty much covers the implementation of a linter. If your linter
 supports end-of-line pragma instructions like Rubocop, then the logic is the
 same; parse the list of current rules being ignored (if any) and append the new
 one.
+
+This what you'll see on VSCode:
+
+![ESLint running with Linter](https://github.com/fnando/vscode-linter/raw/main/docs/images/eslint-linter-in-action.png)
 
 The next step is
 [packaging and publishing your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)

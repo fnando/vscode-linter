@@ -24,7 +24,7 @@ export interface EslintOffense {
 
 interface EslintFix {
   text: string;
-  range: number[];
+  range: [number, number];
 }
 
 const offenseSeverity: { [key: string]: LinterOffenseSeverity } = {
@@ -57,7 +57,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     if (item.fix) {
       offense.inlineFix = {
         replacement: item.fix.text,
-        offset: item.fix.range as [number, number],
+        offset: item.fix.range,
       };
     }
 
