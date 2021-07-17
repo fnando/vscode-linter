@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add luacheck.
+
 ## 0.0.2
 
 - Add Brakeman.

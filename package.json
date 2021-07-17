@@ -157,6 +157,31 @@
               "name": "language-tool",
               "url": "https://github.com/languagetool-org/languagetool"
             },
+            "luacheck": {
+              "capabilities": [],
+              "command": [
+                "luacheck",
+                "--formatter",
+                "plain",
+                "--codes",
+                "--ranges",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ],
+                "-"
+              ],
+              "configFiles": [
+                ".luacheckrc"
+              ],
+              "enabled": true,
+              "languages": [
+                "lua"
+              ],
+              "name": "luacheck",
+              "url": "https://luacheck.readthedocs.io/en/stable/"
+            },
             "markdownlint": {
               "capabilities": [
                 "fix-inline"
@@ -223,7 +248,9 @@
               "url": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
             "proselint": {
-              "capabilities": [],
+              "capabilities": [
+                "fix-inline"
+              ],
               "command": [
                 "proselint",
                 "--json",
