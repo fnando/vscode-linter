@@ -68,7 +68,7 @@ instance, to disable a linter, all you need is something like this:
 
 ## License
 
-Copyright (c) 2021 Nando Vieira
+Copyright © 2021 Nando Vieira
 
 MIT License
 
