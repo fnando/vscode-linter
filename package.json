@@ -77,6 +77,21 @@
               "name": "credo",
               "url": "https://hexdocs.pm/credo/"
             },
+            "dart": {
+              "capabilities": [],
+              "command": [
+                "dart",
+                "analyze",
+                "$file"
+              ],
+              "configFiles": [],
+              "enabled": true,
+              "languages": [
+                "dart"
+              ],
+              "name": "dart",
+              "url": "https://dart.dev/tools/linter-rules"
+            },
             "eslint": {
               "capabilities": [
                 "ignore-line",
@@ -710,11 +725,16 @@
   },
   "icon": "icon.png",
   "keywords": [
-    "linters",
+    "brakeman",
+    "credo",
+    "dart",
     "eslint",
     "hadolint",
+    "languagetool",
+    "luacheck",
     "markdownlint",
     "php-code-sniffer",
+    "proselint",
     "pylint",
     "reek",
     "rubocop",
@@ -724,10 +744,8 @@
     "stylelint",
     "swiftlint",
     "textlint",
-    "yamllint",
-    "language tool",
     "vale",
-    "proselint"
+    "yamllint"
   ],
   "main": "./dist/extension.js",
   "name": "linter",

@@ -24,6 +24,7 @@ Supports out of the box:
 
 - [Brakeman](https://brakemanscanner.org)
 - [Credo](https://hexdocs.pm/credo/overview.html)
+- [Dart](https://dart.dev/tools/linter-rules)
 - [ESLint](https://eslint.org)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
 - [LanguageTool](https://github.com/hadolint/hadolint)

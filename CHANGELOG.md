@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add dart.
+
 ## 0.0.4
 
 - Add credo.

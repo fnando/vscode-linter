@@ -1,0 +1,13 @@
+---
+linter:
+  rules:
+    - camel_case_types
+    - avoid_dynamic_calls
+    - avoid_empty_else
+    - avoid_print
+analyzer:
+  errors:
+    camel_case_types: error
+    avoid_dynamic_calls: warning
+    avoid_empty_else: info
+    avoid_print: info
