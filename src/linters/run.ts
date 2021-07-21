@@ -25,7 +25,7 @@ function convertOffenseToDiagnostic(offense: LinterOffense): vscode.Diagnostic {
       new vscode.Position(offense.lineStart, offense.columnStart),
       new vscode.Position(offense.lineEnd, offense.columnEnd),
     ),
-    severity: (offense.severity as unknown) as vscode.DiagnosticSeverity,
+    severity: offense.severity as unknown as vscode.DiagnosticSeverity,
   };
 }
 
@@ -52,9 +52,8 @@ function setDiagnosticsFromCache({
 
     try {
       diagnostics.push(
-        ...((cache.read(cacheFilePath) ??
-          []) as LinterOffense[]).map((offense) =>
-          convertOffenseToDiagnostic(offense),
+        ...((cache.read(cacheFilePath) ?? []) as LinterOffense[]).map(
+          (offense) => convertOffenseToDiagnostic(offense),
         ),
       );
     } catch (error) {
@@ -91,9 +90,9 @@ function setFreshDiagnostics({
       continue;
     }
 
-    const config = (vscode.workspace.getConfiguration(
+    const config = vscode.workspace.getConfiguration(
       "linter",
-    ) as unknown) as Config;
+    ) as unknown as Config;
     const cacheFilePath = getCacheFilePath(linterName, document);
     const contents = document.getText();
     const rootDir = findRootDir(document.uri);
@@ -103,6 +102,7 @@ function setFreshDiagnostics({
       $rootDir: rootDir,
       $file: document.uri.path,
       $extension: path.extname(document.uri.path).toLowerCase(),
+      $extensionBare: path.extname(document.uri.path).toLowerCase().substr(1),
       $config: configFile,
       $debug: config.debug,
       $lint: true,
@@ -222,6 +222,8 @@ function lint({
   linter: Linter;
   command: string[];
 }): LinterOffense[] {
+  let result: childProcess.SpawnSyncReturns<Buffer>;
+
   try {
     if (!command[0].includes("/") && !isBinWithinPath(command[0])) {
       debug(
@@ -232,7 +234,7 @@ function lint({
       return [];
     }
 
-    const result = childProcess.spawnSync(command[0], command.slice(1), {
+    result = childProcess.spawnSync(command[0], command.slice(1), {
       input,
       env: process.env,
       cwd: rootDir,
@@ -253,6 +255,11 @@ function lint({
     return linter.getOffenses(params);
   } catch (error) {
     debug(error);
+    debug(
+      "command exited with",
+      `status=${result!.status}, signal=${result!.signal}`,
+    );
+    debug(result!.stderr?.toString() || result!.stdout?.toString());
     return [];
   }
 }
@@ -293,6 +300,7 @@ export function fix(
     $rootDir: rootDir,
     $file: offense.uri.path,
     $extension: path.extname(offense.uri.path).toLowerCase(),
+    $extensionBare: path.extname(offense.uri.path).toLowerCase().substr(1),
     $code: offense.code,
     $fixAll: type === "fix-all",
     $fixOne: type === "fix-one",

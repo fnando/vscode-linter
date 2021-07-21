@@ -194,13 +194,18 @@ The built-in variables are:
 - `$code`: the offense's code,
 - `$config`: the configuration file that will be used.
 - `$debug`: whether debug mode is enabled or not.
-- `$extension`: the file's extension, in lowercase.
+- `$extension`: the file's extension, in lowercase. E.g. `.md`.
+- `$extensionBare`: the file's extension, in lowercase, without the dot. E.g.
+  `md`.
 - `$file`: the full file path.
 - `$fixAll`: `true` when trying to fix the whole file.
 - `$fixCategory`: `true` when trying to fix one whole category.
 - `$fixOne`: `true` when trying to fix one offense.
 - `$language`: the document's language id.
 - `$lint`: whether the command that will be executed is for linting.
+- `$isRails`: whether there's a Gemfile that lists Rails as dependency.
+- `$isBundler`: whether the project directory has a Gemfile. Useful to prefix
+  commands with `bundle exec`.
 
 All variables will also have a falsy counterpart. For instance, if you want to
 add some configuration when no config file is set, then you can use something

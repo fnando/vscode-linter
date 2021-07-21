@@ -2,6 +2,17 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add variables
+  - `$isRails`: when current project has Gemfile that lists Rails as dependency.
+  - `$isBundler`: when curren project has Gemfile.
+  - `$extensionBare`: the file's extension without the dot. E.g. `md`.
+- Prefix `rubocop` and `brakeman` with Bundler when running from a directory
+  that contains a Gemfile.
+- Improve debug output to include stdout/stderr when a linter raises an
+  exception.
+
 ## 0.0.5
 
 - Add dart.

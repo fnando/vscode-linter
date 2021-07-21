@@ -3,18 +3,15 @@ import { isArray } from "lodash";
 import * as path from "path";
 import * as fs from "fs";
 import { LinterConfig } from "vscode-linter-api";
+import { findGemfile } from "./findGemfile";
 
 type Args = { [key: string]: unknown };
 
 const extraArgs: {
   [key: string]: (args: Args) => boolean;
 } = {
-  "$is-rails": (args): boolean => {
-    const gemfile = [
-      path.join(args["$rootDir"] as string, "Gemfile"),
-      path.join(args["$rootDir"] as string, "Gemfile.rb"),
-      path.join(args["$rootDir"] as string, "gems.rb"),
-    ].find((entry) => fs.existsSync(entry));
+  $isRails: (args): boolean => {
+    const gemfile = findGemfile(args["$rootDir"] as string);
 
     return Boolean(
       gemfile &&
@@ -23,6 +20,10 @@ const extraArgs: {
           .toString()
           .match(/^gem ("rails"|'rails')/gm),
     );
+  },
+
+  $isBundler: (args): boolean => {
+    return Boolean(findGemfile(args["$rootDir"] as string));
   },
 };
 
@@ -51,15 +52,26 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
 
   args = { ...args, ...additionalArgs };
 
+  // Expand arguments from command that are computable (e.g. $is-bundler).
+  linterConfig.command.forEach((item) => {
+    const name = [item].flat()[0];
+
+    if (name in extraArgs && !(name in args)) {
+      args[name] = extraArgs[name]?.call(null, args);
+    }
+  });
+
+  // Expand arguments from `when` that are computable (e.g. $is-rails).
   (linterConfig.when ?? []).forEach((name) => {
     args[name] = extraArgs[name]?.call(null, args);
   });
 
-  return Object.keys(args).reduce(
-    (buffer, key) =>
-      Object.assign(buffer, { [`!${key}`]: !Boolean(buffer[key]) }),
-    args,
-  );
+  // Generate negated version for all variables.
+  Object.keys(args).forEach((name) => {
+    args[`!${name}`] = !Boolean(args[name]);
+  });
+
+  return args;
 }
 
 export function expandCommand(
@@ -67,6 +79,7 @@ export function expandCommand(
   args: { [key: string]: unknown },
 ) {
   args = expandArgs(linterConfig, args);
+  console.log({ args });
 
   const command = linterConfig.command
     .flatMap((entry: any) => {

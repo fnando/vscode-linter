@@ -23,6 +23,11 @@
             "brakeman": {
               "capabilities": [],
               "command": [
+                [
+                  "$isBundler",
+                  "bundle",
+                  "exec"
+                ],
                 "brakeman",
                 "--format",
                 "json",
@@ -52,7 +57,7 @@
               "name": "brakeman",
               "url": "https://brakemanscanner.org/",
               "when": [
-                "$is-rails"
+                "$isRails"
               ]
             },
             "credo": {
@@ -373,6 +378,11 @@
                 "fix-all"
               ],
               "command": [
+                [
+                  "$isBundler",
+                  "bundle",
+                  "exec"
+                ],
                 "rubocop",
                 [
                   "$lint",
