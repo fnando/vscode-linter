@@ -2,7 +2,7 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
-## Unreleased
+## 0.0.6
 
 - Add variables
   - `$isRails`: when current project has Gemfile that lists Rails as dependency.
