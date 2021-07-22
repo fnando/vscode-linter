@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Remove `console.log`.
+
 ## 0.0.6
 
 - Add variables

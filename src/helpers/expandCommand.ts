@@ -79,7 +79,6 @@ export function expandCommand(
   args: { [key: string]: unknown },
 ) {
   args = expandArgs(linterConfig, args);
-  console.log({ args });
 
   const command = linterConfig.command
     .flatMap((entry: any) => {
