@@ -143,8 +143,6 @@
               "enabled": true,
               "languages": [
                 "javascript",
-                "json",
-                "jsonc",
                 "jsx",
                 "typescript",
                 "typescriptreact"
