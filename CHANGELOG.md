@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Fix eslint config files list.
+
 ## 0.0.7
 
 - Remove `console.log`.

@@ -133,16 +133,12 @@
                 "--stdin"
               ],
               "configFiles": [
-                ".prettierrc",
-                ".prettierrc.json",
-                ".prettierrc.yml",
-                ".prettierrc.yaml",
-                ".prettierrc.json5",
-                ".prettierrc.js",
-                ".prettierrc.cjs",
-                "prettier.config.js",
-                "prettier.config.cjs",
-                ".prettierrc.toml"
+                ".eslintrc.js",
+                ".eslintrc.cjs",
+                ".eslintrc.yaml",
+                ".eslintrc.yml",
+                ".eslintrc.json",
+                ".eslintrc"
               ],
               "enabled": true,
               "languages": [
