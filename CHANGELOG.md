@@ -2,7 +2,7 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
-## Unreleased
+## 0.0.9
 
 - ESLint will run only against JavaScript and TypeScript files.
 
