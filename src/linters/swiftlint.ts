@@ -18,7 +18,7 @@ export interface SwiftOffense {
 }
 
 const filePragmaRegex = /^\/\/\s*swiftlint:disable(?:\s+(.+))?$/;
-const linePragmaRegex = /^\/\/\s*swiftlint:disable-next(?:\s+(.+))?$/;
+const linePragmaRegex = /^\/\/\s*swiftlint:disable:next(?:\s+(.+))?$/;
 
 const offenseSeverity: { [key: string]: LinterOffenseSeverity } = {
   error: LinterOffenseSeverity.error,
