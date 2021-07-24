@@ -4,6 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { LinterConfig } from "vscode-linter-api";
 import { findGemfile } from "./findGemfile";
+import { debug } from "./debug";
 
 type Args = { [key: string]: unknown };
 
@@ -52,7 +53,7 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
 
   args = { ...args, ...additionalArgs };
 
-  // Expand arguments from command that are computable (e.g. $is-bundler).
+  // Expand arguments from command that are computable (e.g. $isBundler).
   linterConfig.command.forEach((item) => {
     const name = [item].flat()[0];
 
@@ -61,7 +62,7 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
     }
   });
 
-  // Expand arguments from `when` that are computable (e.g. $is-rails).
+  // Expand arguments from `when` that are computable (e.g. $isRails).
   (linterConfig.when ?? []).forEach((name) => {
     args[name] = extraArgs[name]?.call(null, args);
   });
@@ -79,6 +80,21 @@ export function expandCommand(
   args: { [key: string]: unknown },
 ) {
   args = expandArgs(linterConfig, args);
+
+  const when = linterConfig.when?.reduce(
+    (buffer, name) => Boolean(buffer && args[name]),
+    true,
+  );
+
+  if (linterConfig.when?.length > 0 && !when) {
+    debug(
+      "skipping",
+      linterConfig.name,
+      "because `when` is not satisfied",
+      linterConfig.when,
+    );
+    return [];
+  }
 
   const command = linterConfig.command
     .flatMap((entry: any) => {

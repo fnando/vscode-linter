@@ -69,6 +69,28 @@ function setDiagnosticsFromCache({
   diagnosticCollection.set(document.uri, diagnostics);
 }
 
+function replaceDiagnosticsBySource({
+  source,
+  offenses,
+  document,
+  diagnosticCollection,
+}: {
+  source: string;
+  diagnosticCollection: vscode.DiagnosticCollection;
+  document: vscode.TextDocument;
+  offenses: LinterOffense[];
+}) {
+  const diagnostics = diagnosticCollection
+    .get(document.uri)
+    ?.filter((diagnostic) => diagnostic.source !== source);
+
+  diagnostics?.push(
+    ...offenses.map((offense) => convertOffenseToDiagnostic(offense)),
+  );
+
+  diagnosticCollection.set(document.uri, diagnostics);
+}
+
 function setFreshDiagnostics({
   document,
   matchingLinters,
@@ -109,11 +131,17 @@ function setFreshDiagnostics({
       $language: document.languageId,
     });
 
+    if (command.length === 0) {
+      continue;
+    }
+
     debug({
       rootDir,
       configFile,
       command,
     });
+
+    const started = Date.now();
 
     const _offenses = lint({
       rootDir,
@@ -123,14 +151,19 @@ function setFreshDiagnostics({
       linter: linters.get(linterConfig),
     });
 
+    const ended = Date.now();
+
+    debug(`${linterConfig.name}'s command took`, `${ended - started}ms`);
+
     offenses.push(..._offenses);
     cache.write(cacheFilePath, _offenses);
+    replaceDiagnosticsBySource({
+      source: linterConfig.name,
+      document,
+      diagnosticCollection,
+      offenses: _offenses,
+    });
   }
-
-  diagnosticCollection.set(
-    document.uri,
-    offenses.map((offense) => convertOffenseToDiagnostic(offense)),
-  );
 }
 
 export async function run(
@@ -143,8 +176,10 @@ export async function run(
   }
 
   const availableLinters = getAvailableLinters();
-  const matchingLinters = Object.keys(availableLinters).filter((name) =>
-    availableLinters[name].languages.includes(document.languageId),
+  const matchingLinters = Object.keys(availableLinters).filter(
+    (name) =>
+      availableLinters[name].languages.includes(document.languageId) &&
+      availableLinters[name].enabled,
   );
 
   if (!matchingLinters.length) {
