@@ -2,9 +2,11 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
-## Unreleased
+## 0.0.10
 
 - Fix swiftlint's ignore line pragma.
+- Render diagnostics as they are ready, instead of waiting for every linter to
+  be done.
 
 ## 0.0.9
 
