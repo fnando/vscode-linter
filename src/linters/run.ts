@@ -189,11 +189,19 @@ export async function run(
   offenses.length = 0;
   diagnosticCollection.clear();
 
-  setDiagnosticsFromCache({
-    document,
-    matchingLinters,
-    diagnosticCollection,
-  });
+  const cacheEnabled = (
+    vscode.workspace.getConfiguration("linter") as unknown as Config
+  ).cache;
+
+  debug("Reading from cache?", cacheEnabled);
+
+  if (cacheEnabled) {
+    setDiagnosticsFromCache({
+      document,
+      matchingLinters,
+      diagnosticCollection,
+    });
+  }
 
   setTimeout(
     () =>

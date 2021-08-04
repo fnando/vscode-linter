@@ -8,6 +8,11 @@
   "contributes": {
     "configuration": {
       "properties": {
+        "linter.cache": {
+          "default": false,
+          "description": "Cache linting results. May end up with stale results while executing commands.",
+          "type": "boolean"
+        },
         "linter.debug": {
           "default": false,
           "description": "Run command with debug options",

@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add option to disable cached results.
+
 ## 0.0.10
 
 - Fix swiftlint's ignore line pragma.

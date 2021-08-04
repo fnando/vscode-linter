@@ -6,6 +6,7 @@ export type Linters = {
 
 export type Config = {
   enabled: boolean;
+  cache: boolean;
   debug: boolean;
   linters: Linters;
 };
