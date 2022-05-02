@@ -27,7 +27,7 @@ Supports out of the box:
 - [Dart](https://dart.dev/tools/linter-rules)
 - [ESLint](https://eslint.org)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
-- [LanguageTool](https://github.com/hadolint/hadolint)
+- [LanguageTool](https://languagetool.org/)
 - [Luacheck](https://luacheck.readthedocs.io/en/stable/)
 - [markdownlint](https://github.com/DavidAnson/markdownlint)
 - [PHP CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
