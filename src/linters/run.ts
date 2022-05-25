@@ -221,7 +221,7 @@ function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
     return "";
   }
 
-  const dirs = uri.path.split(path.sep).slice(0, -1);
+  const dirs = uri.fsPath.split(path.sep).slice(0, -1);
 
   while (dirs.length > 0) {
     for (let candidate of configFiles) {
