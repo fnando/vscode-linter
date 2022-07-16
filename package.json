@@ -460,16 +460,6 @@
               "capabilities": [],
               "command": [
                 "shellcheck",
-                [
-                  "$bash",
-                  "--shell",
-                  "bash"
-                ],
-                [
-                  "!$bash",
-                  "--shell",
-                  "sh"
-                ],
                 "--format",
                 "json",
                 "--enable",
