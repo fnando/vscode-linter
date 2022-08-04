@@ -703,7 +703,9 @@
                 "-"
               ],
               "configFiles": [
-                ".yamllint.yml"
+                ".yamllint.yml",
+                ".yamllint.yaml",
+                ".yamllint"
               ],
               "enabled": true,
               "languages": [
