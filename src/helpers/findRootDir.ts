@@ -6,5 +6,5 @@ export function findRootDir(uri: vscode.Uri): string {
     vscode.workspace.getWorkspaceFolder(uri)?.uri ||
     vscode.Uri.parse(path.resolve(uri.path, ".."));
 
-  return rootDirUri.path;
+  return rootDirUri.fsPath;
 }

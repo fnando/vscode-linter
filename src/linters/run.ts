@@ -221,11 +221,11 @@ function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
     return "";
   }
 
-  const dirs = uri.path.split("/").slice(0, -1);
+  const dirs = uri.fsPath.split(path.sep).slice(0, -1);
 
   while (dirs.length > 0) {
     for (let candidate of configFiles) {
-      const configFile = path.resolve(dirs.join("/"), candidate);
+      const configFile = path.resolve(dirs.join(path.sep), candidate);
 
       if (fs.existsSync(configFile)) {
         return configFile;
@@ -239,7 +239,7 @@ function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
 }
 
 function isBinWithinPath(bin: string): boolean {
-  const dirs = process.env.PATH?.split(":").filter(Boolean) ?? [];
+  const dirs = process.env.PATH?.split(path.delimiter).filter(Boolean) ?? [];
 
   return dirs.some((dir) => {
     try {
@@ -268,10 +268,10 @@ function lint({
   let result: childProcess.SpawnSyncReturns<Buffer>;
 
   try {
-    if (!command[0].includes("/") && !isBinWithinPath(command[0])) {
+    if (!command[0].includes(path.sep) && !isBinWithinPath(command[0])) {
       debug(
         `The ${command[0]} binary couldn't be found within $PATH:`,
-        process.env.PATH?.split(":").filter(Boolean),
+        process.env.PATH?.split(path.delimiter).filter(Boolean),
       );
 
       return [];
