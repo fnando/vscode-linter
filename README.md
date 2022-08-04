@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://gitthub.com/fnando/vscode-linter/">
+  <a href="https://github.com/fnando/vscode-linter/">
     <img width="128" height="128" src="https://github.com/fnando/vscode-linter/raw/main/icon.png" alt="Linter">
   </a>
   <br>
