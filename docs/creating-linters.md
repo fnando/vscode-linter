@@ -177,6 +177,10 @@ index 9f7db6c..c582b7a 100644
    "scripts": {
 ```
 
+> **Warning**:
+> 
+> Even if your linter doesn't support configuration files, make sure you have `"configFiles": []` there; otherwise the extension will break.
+
 There's quite a lot of changes, but the only one that requires explanation is
 the command. The command will receive the file's content that will be linted via
 STDIN. Notice that there are some strings containing `$`; those indicates
