@@ -238,17 +238,26 @@ function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
   return "";
 }
 
-function isBinWithinPath(bin: string): boolean {
+function isBinWithinPath(binName: string): boolean {
   const dirs = process.env.PATH?.split(path.delimiter).filter(Boolean) ?? [];
-
-  return dirs.some((dir) => {
-    try {
-      return (
-        fs.accessSync(path.join(dir, bin), fs.constants.X_OK) === undefined
-      );
-    } catch (error) {
-      return false;
-    }
+  const binCandidates = [binName];
+  if (process.env.PATHEXT !== undefined) {
+    binCandidates.push(
+      ...process.env.PATHEXT.split(path.delimiter).map(
+        (ext) => `${binName}${ext}`
+      )
+    );
+  }
+  return binCandidates.some((bin) => {
+    return dirs.some((dir) => {
+      try {
+        return (
+          fs.accessSync(path.join(dir, bin), fs.constants.X_OK) === undefined
+        );
+      } catch (error) {
+        return false;
+      }
+    });
   });
 }
 
