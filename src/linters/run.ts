@@ -274,7 +274,7 @@ function lint({
   // absolute or relative path. In that case, we don't need to search for it
   // on $PATH.
   if (binary.includes(path.sep) && !isExecutable(binary)) {
-    debug(`The ${command[0]} binary is not executable`);
+    debug(`The ${binary} binary is not executable`);
     return [];
   }
 
