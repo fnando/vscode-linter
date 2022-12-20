@@ -1,0 +1,9 @@
+{
+  "file-name": [
+    "on",
+    {
+      "style": "PascalCase"
+    }
+  ],
+  "no-duplicate-tags": "on"
+}

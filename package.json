@@ -155,6 +155,29 @@
               "name": "eslint",
               "url": "https://eslint.org"
             },
+            "gherkin-lint": {
+              "capabilities": [],
+              "command": [
+                "gherkin-lint",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ],
+                "--format",
+                "json",
+                "$file"
+              ],
+              "configFiles": [
+                ".gherkin-lintrc"
+              ],
+              "enabled": true,
+              "languages": [
+                "cucumber"
+              ],
+              "name": "gherkin-lint",
+              "url": "https://github.com/vsiakka/gherkin-lint"
+            },
             "hadolint": {
               "capabilities": [
                 "ignore-line"
@@ -727,6 +750,7 @@
   "keywords": [
     "brakeman",
     "credo",
+    "gherkin-lint",
     "dart",
     "eslint",
     "hadolint",

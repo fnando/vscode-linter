@@ -26,6 +26,7 @@ Supports out of the box:
 - [Credo](https://hexdocs.pm/credo/overview.html)
 - [Dart](https://dart.dev/tools/linter-rules)
 - [ESLint](https://eslint.org)
+- [gherkin-lint](https://github.com/vsiakka/gherkin-lint)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)
 - [LanguageTool](https://languagetool.org/)
 - [Luacheck](https://luacheck.readthedocs.io/en/stable/)
