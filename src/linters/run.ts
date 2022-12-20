@@ -173,7 +173,7 @@ export async function run(
   diagnosticCollection: vscode.DiagnosticCollection,
   offenses: LinterOffense[],
 ) {
-  if (["code-runner-output"].includes(document.languageId)) {
+  if (["code-runner-output", "Log"].includes(document.languageId)) {
     return;
   }
 
