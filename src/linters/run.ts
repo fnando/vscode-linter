@@ -16,6 +16,8 @@ import { findRootDir } from "../helpers/findRootDir";
 import { md5 } from "../helpers/md5";
 import * as cache from "../helpers/cache";
 
+const isWindows = os.platform() === "win32";
+
 function convertOffenseToDiagnostic(offense: LinterOffense): vscode.Diagnostic {
   return {
     code: offense.code,
@@ -238,18 +240,18 @@ function findConfigFile(uri: vscode.Uri, configFiles: string[]): string {
   return "";
 }
 
-function isBinWithinPath(bin: string): boolean {
+function isExecutable(bin: string) {
+  try {
+    return fs.accessSync(bin, fs.constants.X_OK) === undefined;
+  } catch (error) {
+    return false;
+  }
+}
+
+function isBinaryWithinPath(bin: string): boolean {
   const dirs = process.env.PATH?.split(path.delimiter).filter(Boolean) ?? [];
 
-  return dirs.some((dir) => {
-    try {
-      return (
-        fs.accessSync(path.join(dir, bin), fs.constants.X_OK) === undefined
-      );
-    } catch (error) {
-      return false;
-    }
-  });
+  return dirs.some((dir) => isExecutable(path.join(dir, bin)));
 }
 
 function lint({
@@ -266,25 +268,42 @@ function lint({
   command: string[];
 }): LinterOffense[] {
   let result: childProcess.SpawnSyncReturns<Buffer>;
+  let binary = command[0];
+
+  if (binary.includes(path.sep) && !isExecutable(binary)) {
+    debug(`The ${command[0]} binary is not executable`);
+    return [];
+  }
+
+  // Include .exe alternative for Windows.
+  // Use the first binary that's found within $PATH.
+  binary =
+    [binary, isWindows ? `${binary}.exe` : ""]
+      .filter(Boolean)
+      .find((b) => isBinaryWithinPath(b)) ?? "";
 
   try {
-    if (!command[0].includes(path.sep) && !isBinWithinPath(command[0])) {
+    if (!binary) {
+      const query = isWindows
+        ? `${command[0]} and ${command[0]}.exe`
+        : command[0];
+
       debug(
-        `The ${command[0]} binary couldn't be found within $PATH:`,
+        `Searched for ${query}; couldn't be found within $PATH:`,
         process.env.PATH?.split(path.delimiter).filter(Boolean),
       );
 
       return [];
     }
 
-    result = childProcess.spawnSync(command[0], command.slice(1), {
+    result = childProcess.spawnSync(binary, command.slice(1), {
       input,
       env: process.env,
       cwd: rootDir,
     });
 
     if (result.error) {
-      debug(`Error while running "${command[0]}":`, result.error.message);
+      debug(`Error while running "${binary}":`, result.error.message);
       return [];
     }
 
