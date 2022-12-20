@@ -270,26 +270,35 @@ function lint({
   let result: childProcess.SpawnSyncReturns<Buffer>;
   let binary = command[0];
 
+  // If binary includes a path separator, then it means it's pointing to an
+  // absolute or relative path. In that case, we don't need to search for it
+  // on $PATH.
   if (binary.includes(path.sep) && !isExecutable(binary)) {
     debug(`The ${command[0]} binary is not executable`);
     return [];
   }
 
-  // Include .exe alternative for Windows.
+  const candidates = [binary];
+
+  // Use $PATHEXT on Windows to find the binary.
+  // If it's not set, consider `.exe` as the default extension.
+  const otherBinaries = isWindows
+    ? (process.env.PATHEXT ?? ".exe")
+        .split(path.delimiter)
+        .map((ext) => `${binary}${ext}`)
+    : [];
+
+  candidates.push(...otherBinaries);
+
   // Use the first binary that's found within $PATH.
-  binary =
-    [binary, isWindows ? `${binary}.exe` : ""]
-      .filter(Boolean)
-      .find((b) => isBinaryWithinPath(b)) ?? "";
+  binary = candidates.filter(Boolean).find((b) => isBinaryWithinPath(b)) ?? "";
 
   try {
     if (!binary) {
-      const query = isWindows
-        ? `${command[0]} and ${command[0]}.exe`
-        : command[0];
-
       debug(
-        `Searched for ${query}; couldn't be found within $PATH:`,
+        `Searched for any of ${candidates.join(
+          ", ",
+        )}; couldn't be found within $PATH:`,
         process.env.PATH?.split(path.delimiter).filter(Boolean),
       );
 
