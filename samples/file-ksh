@@ -1,0 +1,3 @@
+#!/usr/bin/env ksh
+
+time sleep 1 | sleep 5

@@ -1,0 +1,3 @@
+#!/usr/bin/env dash
+
+time sleep 1 | sleep 5

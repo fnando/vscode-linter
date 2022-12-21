@@ -44,6 +44,13 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
           value && customArgs.extensions.includes(args.$extension as string);
       }
 
+      if (
+        customArgs.shebangs?.length &&
+        customArgs.shebangs.includes(args.$shebang as string)
+      ) {
+        value = true;
+      }
+
       buffer[name] = value;
 
       return buffer;
@@ -52,6 +59,8 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
   );
 
   args = { ...args, ...additionalArgs };
+
+  debug("Args:", args);
 
   // Expand arguments from command that are computable (e.g. $isBundler).
   linterConfig.command.forEach((item) => {
@@ -75,10 +84,7 @@ function expandArgs(linterConfig: LinterConfig, args: Args): Args {
   return args;
 }
 
-export function expandCommand(
-  linterConfig: LinterConfig,
-  args: { [key: string]: unknown },
-) {
+export function expandCommand(linterConfig: LinterConfig, args: Args) {
   args = expandArgs(linterConfig, args);
 
   const when = linterConfig.when?.reduce(

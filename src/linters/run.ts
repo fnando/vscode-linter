@@ -122,6 +122,8 @@ function setFreshDiagnostics({
     const rootDir = findRootDir(document.uri);
     const configFile = findConfigFile(document.uri, linterConfig.configFiles);
 
+    debug("Linter config:", linterConfig);
+
     const command = expandCommand(linterConfig, {
       $rootDir: rootDir,
       $file: document.uri.path,
@@ -131,6 +133,7 @@ function setFreshDiagnostics({
       $debug: config.debug,
       $lint: true,
       $language: document.languageId,
+      $shebang: getShebang(document),
     });
 
     if (command.length === 0) {
@@ -187,6 +190,9 @@ export async function run(
   if (!matchingLinters.length) {
     debug("No linters found for", JSON.stringify(document.languageId));
   }
+
+  debug("Language id:", document.languageId);
+  debug("Matching linters:", matchingLinters);
 
   offenses.length = 0;
   diagnosticCollection.clear();
@@ -358,6 +364,16 @@ export function fixInline(offense: LinterOffense, editor: vscode.TextEditor) {
   editor.edit((change) => change.replace(range, inlineFix.replacement));
 }
 
+function getShebang(document: vscode.TextDocument): string {
+  const firstLine = document.lineAt(0).text;
+
+  if (firstLine.startsWith("#!")) {
+    return firstLine.replace(/^#\!/, "");
+  }
+
+  return "";
+}
+
 export function fix(
   offense: LinterOffense,
   editor: vscode.TextEditor,
@@ -367,6 +383,9 @@ export function fix(
   const rootDir = findRootDir(offense.uri);
   const linterConfig = getLinterConfig(offense.source);
   const configFile = findConfigFile(offense.uri, linterConfig.configFiles);
+
+  debug("Linter config:", linterConfig);
+
   const command = expandCommand(linterConfig, {
     $rootDir: rootDir,
     $file: offense.uri.path,
@@ -379,6 +398,7 @@ export function fix(
     $config: configFile,
     $debug: vscode.workspace.getConfiguration("linter").debug,
     $language: editor.document.languageId,
+    $shebang: getShebang(editor.document),
   });
   const linter: Linter = linters.get(linterConfig);
 
