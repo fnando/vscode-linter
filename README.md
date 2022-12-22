@@ -25,6 +25,7 @@ Supports out of the box:
 - [Brakeman](https://brakemanscanner.org)
 - [Credo](https://hexdocs.pm/credo/overview.html)
 - [Dart](https://dart.dev/tools/linter-rules)
+- [erb_lint](https://github.com/Shopify/erb-lint)
 - [ESLint](https://eslint.org)
 - [gherkin-lint](https://github.com/vsiakka/gherkin-lint)
 - [hadolint (Dockerfile)](https://github.com/hadolint/hadolint)

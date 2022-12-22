@@ -102,6 +102,34 @@
               "name": "dart",
               "url": "https://dart.dev/tools/linter-rules"
             },
+            "erb_lint": {
+              "capabilities": [],
+              "command": [
+                [
+                  "$isBundler",
+                  "bundle",
+                  "exec"
+                ],
+                "erblint",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ],
+                "--format",
+                "json",
+                "$file"
+              ],
+              "configFiles": [
+                ".erb-lint.yml"
+              ],
+              "enabled": true,
+              "languages": [
+                "erb"
+              ],
+              "name": "erb_lint",
+              "url": "https://github.com/Shopify/erb-lint"
+            },
             "eslint": {
               "capabilities": [
                 "ignore-line",

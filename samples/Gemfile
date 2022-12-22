@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'better_html'
+gem 'erb_lint'
+gem 'rubocop'
+gem 'rubocop-fnando'

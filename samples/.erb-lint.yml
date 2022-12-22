@@ -1,0 +1,15 @@
+---
+EnableDefaultLinters: true
+linters:
+  ErbSafety:
+    enabled: true
+    better_html_config: .better-html.yml
+  SpaceAroundErbTag:
+    enabled: true
+  AllowedScriptType:
+    enabled: true
+    allowed_types:
+      - text/javascript
+      - application/javascript
+    allow_blank: false
+    disallow_inline_scripts: false
