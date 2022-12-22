@@ -2,6 +2,24 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## 0.0.15
+
+- Add erb_linter.
+- Add shebang conditionals.
+
+## 0.0.14
+
+- Fix Windows support.
+- Add gherkin-lint support.
+
+## 0.0.13
+
+- Add other config files to yamllint.
+
+## 0.0.12
+
+- No notable changes.
+
 ## 0.0.11
 
 - Add option to disable cached results.
