@@ -786,6 +786,7 @@
     "credo",
     "gherkin-lint",
     "dart",
+    "erb_lint",
     "eslint",
     "hadolint",
     "languagetool",
