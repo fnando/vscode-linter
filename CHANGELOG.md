@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add `jinja-sql` to sqlfluff's languages.
+
 ## 0.0.15
 
 - Add erb_linter.

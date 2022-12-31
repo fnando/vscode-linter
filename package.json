@@ -577,7 +577,8 @@
               "enabled": true,
               "languages": [
                 "mysql",
-                "postgres"
+                "postgres",
+                "jinja-sql"
               ],
               "name": "sqlfluff",
               "url": "https://docs.sqlfluff.com/en/stable/index.html"
