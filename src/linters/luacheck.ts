@@ -7,7 +7,7 @@ import {
 const lineMatcher = /^stdin:(\d+):(\d+)-(\d+): \((.*?)\) (.+)$/;
 
 export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
-  return stdout
+  const offenses = stdout
     .split(/\r?\n/)
     .map((line) => {
       const [_, lineNumber, colStartNumber, colEndNumber, code, message] =
@@ -36,6 +36,8 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
       } as LinterOffense;
     })
     .filter(Boolean) as LinterOffense[];
+
+  return Promise.resolve(offenses);
 };
 
 function getDocsUrl(code: string): string {

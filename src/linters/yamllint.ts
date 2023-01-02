@@ -40,7 +40,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     })
     .filter(Boolean) as unknown as LinterOffense[];
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
@@ -62,10 +62,12 @@ export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
   ).join(", ")}`;
 
   if (matches) {
-    return pragma;
+    return Promise.resolve(pragma);
   }
 
-  return line.number === 0
-    ? [pragma, line.text].join("\n")
-    : [line.text, pragma].join("\n");
+  return Promise.resolve(
+    line.number === 0
+      ? [pragma, line.text].join("\n")
+      : [line.text, pragma].join("\n"),
+  );
 };

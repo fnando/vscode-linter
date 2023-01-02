@@ -37,7 +37,7 @@ export const getOffenses: LinterGetOffensesFunction = ({
     debug("stylelint: stdout was empty, but here's stderr:");
     log(stderr);
 
-    return [];
+    return Promise.resolve([]);
   }
 
   let result: StylelintPayload[] = [];
@@ -45,7 +45,7 @@ export const getOffenses: LinterGetOffensesFunction = ({
   try {
     result = JSON.parse(stdout);
   } catch (error) {
-    return [];
+    return Promise.resolve([]);
   }
 
   const offenses: LinterOffense[] = [];
@@ -68,11 +68,11 @@ export const getOffenses: LinterGetOffensesFunction = ({
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const parseFixOutput: LinterParseFixOutputFunction = ({ stdout }) =>
-  stdout;
+  Promise.resolve(stdout);
 
 function getDocsUrl(code: string) {
   if (!code) {

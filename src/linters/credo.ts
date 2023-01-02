@@ -29,7 +29,7 @@ const linePragmaRegex = /^\s*# credo:disable-for-next-line(?:\s+(.+))?$/;
 export const getOffenses: LinterGetOffensesFunction = ({ uri, stdout }) => {
   const result: CredoPayload = JSON.parse(stdout);
 
-  return result.issues.map((item) => {
+  const offenses = result.issues.map((item) => {
     item = camelizeObject(item);
 
     const lineStart = Math.max(0, item.lineNo - 1);
@@ -51,13 +51,15 @@ export const getOffenses: LinterGetOffensesFunction = ({ uri, stdout }) => {
 
     return offense;
   });
+
+  return Promise.resolve(offenses);
 };
 
 export const getIgnoreFilePragma: LinterGetIgnoreFilePragmaFunction = ({
   line,
   code,
 }) => {
-  return `# credo:disable-for-this-file ${code}\n${line.text}`;
+  return Promise.resolve(`# credo:disable-for-this-file ${code}\n${line.text}`);
 };
 
 export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
@@ -66,16 +68,18 @@ export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
   indent,
 }) => {
   if (line.text.match(filePragmaRegex)) {
-    return `${line.text}\n${indent}# credo:disable-for-next-line ${code}`;
+    return Promise.resolve(
+      `${line.text}\n${indent}# credo:disable-for-next-line ${code}`,
+    );
   }
 
   if (line.text.match(linePragmaRegex)) {
-    return `${indent}# credo:disable-for-next-line`;
+    return Promise.resolve(`${indent}# credo:disable-for-next-line`);
   }
 
   const pragma = `${indent}# credo:disable-for-next-line ${code}`;
 
-  return line.number === 0
-    ? `${pragma}\n${line.text}`
-    : `${line.text}\n${pragma}`;
+  return Promise.resolve(
+    line.number === 0 ? `${pragma}\n${line.text}` : `${line.text}\n${pragma}`,
+  );
 };

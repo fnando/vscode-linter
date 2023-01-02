@@ -5,8 +5,8 @@ import * as fs from "fs";
 import * as os from "os";
 import * as linters from ".";
 import { Linter, LinterConfig, LinterOffense } from "vscode-linter-api";
-import { Config, Linters } from "../types.d";
-import { getAvailableLinters } from "../helpers/getAvailableLinters";
+import { Config, Linters } from "../types";
+import { getAvailableLinters } from "../helpers/config";
 import { expandCommand } from "../helpers/expandCommand";
 import { getLinterConfig } from "../helpers/getLinterConfig";
 import { getEditor } from "../helpers/getEditor";
@@ -93,7 +93,7 @@ function replaceDiagnosticsBySource({
   diagnosticCollection.set(document.uri, diagnostics);
 }
 
-function setFreshDiagnostics({
+async function setFreshDiagnostics({
   document,
   matchingLinters,
   availableLinters,
@@ -148,7 +148,7 @@ function setFreshDiagnostics({
 
     const started = Date.now();
 
-    const _offenses = lint({
+    const _offenses = await lint({
       rootDir,
       command,
       uri: document.uri,
@@ -161,6 +161,7 @@ function setFreshDiagnostics({
     debug(`${linterConfig.name}'s command took`, `${ended - started}ms`);
 
     offenses.push(..._offenses);
+
     cache.write(cacheFilePath, _offenses);
     replaceDiagnosticsBySource({
       source: linterConfig.name,
@@ -260,7 +261,7 @@ function isBinaryWithinPath(bin: string): boolean {
   return dirs.some((dir) => isExecutable(path.join(dir, bin)));
 }
 
-function lint({
+async function lint({
   uri,
   input,
   rootDir,
@@ -272,7 +273,7 @@ function lint({
   rootDir: string;
   linter: Linter;
   command: string[];
-}): LinterOffense[] {
+}): Promise<LinterOffense[]> {
   let result: childProcess.SpawnSyncReturns<Buffer>;
   let binary = command[0];
 
@@ -329,7 +330,7 @@ function lint({
       status: result.status ?? 0,
     };
 
-    return linter.getOffenses(params);
+    return await linter.getOffenses(params);
   } catch (error) {
     debug(error);
     debug(
@@ -415,17 +416,18 @@ export function fix(
       cwd: rootDir,
     });
 
-    editor.edit((change) => {
+    editor.edit(async (change) => {
       const firstLine = editor.document.lineAt(0);
       const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
       const range = new vscode.Range(firstLine.range.start, lastLine.range.end);
 
       change.replace(
         range,
-        linter.parseFixOutput!({
+        await linter.parseFixOutput!({
           input,
           stdout: result.stdout.toString(),
           stderr: result.stderr.toString(),
+          uri: offense.uri,
         }),
       );
     });
@@ -434,7 +436,7 @@ export function fix(
   }
 }
 
-export function ignore(offense: LinterOffense, type: string) {
+export async function ignore(offense: LinterOffense, type: string) {
   const linterConfig: LinterConfig = getLinterConfig(offense.source);
   const linter: Linter = linters.get(linterConfig);
   const editor = getEditor(offense.uri);
@@ -469,7 +471,7 @@ export function ignore(offense: LinterOffense, type: string) {
 
   if (type === "ignore-eol") {
     line = editor.document.lineAt(offense.lineStart);
-    replacement = linter.getIgnoreEolPragma!({
+    replacement = await linter.getIgnoreEolPragma!({
       line: { text: line.text, number: offense.lineStart },
       code: offense.code,
     });
@@ -478,17 +480,18 @@ export function ignore(offense: LinterOffense, type: string) {
   if (type === "ignore-file") {
     line = editor.document.lineAt(0);
     const indent = getIndent(line.text);
-    replacement = linter.getIgnoreFilePragma!({
+    replacement = await linter.getIgnoreFilePragma!({
       line: { text: line.text, number: 0 },
       code: offense.code,
       indent,
+      document: editor.document,
     });
   }
 
   if (type === "ignore-line") {
     line = editor.document.lineAt(Math.max(0, offense.lineStart - 1));
     const indent = getIndent(editor.document.lineAt(offense.lineStart).text);
-    replacement = linter.getIgnoreLinePragma!({
+    replacement = await linter.getIgnoreLinePragma!({
       line: { number: offense.lineStart, text: line.text },
       code: offense.code,
       indent,

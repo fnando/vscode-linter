@@ -38,7 +38,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   const editor = getEditor(uri);
 
   if (!editor) {
-    return [];
+    return Promise.resolve([]);
   }
 
   result.matches.forEach((offense) => {
@@ -65,5 +65,5 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };

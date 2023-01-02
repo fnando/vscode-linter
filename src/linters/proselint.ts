@@ -39,7 +39,7 @@ export const getOffenses: LinterGetOffensesFunction = ({
   if (!stdout) {
     debug("proselint: stdout was empty, but here's stderr:", { stderr });
 
-    return [];
+    return Promise.resolve([]);
   }
 
   const result: ProselintPayload = JSON.parse(stdout);
@@ -64,5 +64,5 @@ export const getOffenses: LinterGetOffensesFunction = ({
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };

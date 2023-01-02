@@ -2,6 +2,10 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Add cargo-clippy (rust) support.
+
 ## 0.0.16
 
 - Add `jinja-sql` to sqlfluff's languages.

@@ -39,11 +39,11 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
   line,
   code,
   indent,
-}) => [line.text, `${indent}# :reek:${code}`].join("\n");
+}) => Promise.resolve([line.text, `${indent}# :reek:${code}`].join("\n"));

@@ -33,7 +33,7 @@ export const getOffenses: LinterGetOffensesFunction = ({
   if (!stdout) {
     debug("textlint: stdout was empty, but here's stderr:", { stderr });
 
-    return [];
+    return Promise.resolve([]);
   }
 
   const result: TextlintPayload = JSON.parse(stdout);
@@ -66,5 +66,5 @@ export const getOffenses: LinterGetOffensesFunction = ({
     offenses.push(offense);
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };

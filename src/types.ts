@@ -9,4 +9,5 @@ export type Config = {
   cache: boolean;
   debug: boolean;
   linters: Linters;
+  runOnTextChange: boolean;
 };

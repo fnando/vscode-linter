@@ -64,3 +64,7 @@ debug(
 export function getAvailableLinters(): Linters {
   return availableLinters;
 }
+
+export function getConfig(): Config {
+  return config;
+}

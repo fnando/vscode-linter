@@ -23,6 +23,7 @@ through an extension framework.
 Supports out of the box:
 
 - [Brakeman](https://brakemanscanner.org)
+- [Rust Clippy](https://doc.rust-lang.org/clippy/)
 - [Credo](https://hexdocs.pm/credo/overview.html)
 - [Dart](https://dart.dev/tools/linter-rules)
 - [erb_lint](https://github.com/Shopify/erb-lint)

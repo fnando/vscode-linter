@@ -39,5 +39,5 @@ export const getOffenses: LinterGetOffensesFunction = ({ stderr, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };

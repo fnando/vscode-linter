@@ -52,7 +52,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const getIgnoreEolPragma: LinterGetIgnoreEolPragmaFunction = ({
@@ -69,15 +69,17 @@ export const getIgnoreEolPragma: LinterGetIgnoreEolPragmaFunction = ({
 
   existingRules = uniq(sortBy(existingRules));
 
-  return [
-    (matches && matches[1]) || "",
-    "# rubocop:disable",
-    existingRules.join(", "),
-  ].join(" ");
+  return Promise.resolve(
+    [
+      (matches && matches[1]) || "",
+      "# rubocop:disable",
+      existingRules.join(", "),
+    ].join(" "),
+  );
 };
 
 export const parseFixOutput: LinterParseFixOutputFunction = ({ stdout }) =>
-  stdout;
+  Promise.resolve(stdout);
 
 function getDocsUrl(code: string) {
   const parts = (code ?? "").split("/");

@@ -50,7 +50,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const getIgnoreFilePragma: LinterGetIgnoreFilePragmaFunction = ({
@@ -75,12 +75,12 @@ export const getIgnoreFilePragma: LinterGetIgnoreFilePragmaFunction = ({
   ].join(" ");
 
   if (matches) {
-    return pragma;
+    return Promise.resolve(pragma);
   }
 
-  return line.number === 0
-    ? [pragma, text].join("\n")
-    : [text, pragma].join("\n");
+  return Promise.resolve(
+    line.number === 0 ? [pragma, text].join("\n") : [text, pragma].join("\n"),
+  );
 };
 
 export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
@@ -104,16 +104,16 @@ export const getIgnoreLinePragma: LinterGetIgnoreLinePragmaFunction = ({
   ].join(" ");
 
   if (matches) {
-    return pragma;
+    return Promise.resolve(pragma);
   }
 
   if (line.number === 0 && text.match(filePragmaRegex)) {
-    return [text, pragma].join("\n");
+    return Promise.resolve([text, pragma].join("\n"));
   }
 
-  return line.number === 0
-    ? [pragma, text].join("\n")
-    : [text, pragma].join("\n");
+  return Promise.resolve(
+    line.number === 0 ? [pragma, text].join("\n") : [text, pragma].join("\n"),
+  );
 };
 
 function getDocsUrl(code: string): string {

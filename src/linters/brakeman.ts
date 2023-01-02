@@ -30,7 +30,7 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   const result: BrakemanPayload = JSON.parse(stdout);
   const rootDir = findRootDir(uri);
 
-  return result.warnings
+  const offenses = result.warnings
     .map((offense) => {
       offense = camelizeObject(offense);
 
@@ -52,4 +52,6 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
       };
     })
     .filter((offense) => offense.uri.path === uri.path);
+
+  return Promise.resolve(offenses);
 };

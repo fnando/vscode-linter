@@ -65,6 +65,34 @@
                 "$isRails"
               ]
             },
+            "cargo-clippy": {
+              "capabilities": [
+                "fix-inline",
+                "ignore-file"
+              ],
+              "command": [
+                "cargo-clippy",
+                "$file",
+                "--no-deps",
+                "--message-format",
+                "json",
+                [
+                  "$config",
+                  "--config",
+                  "$config"
+                ]
+              ],
+              "configFiles": [
+                "clippy.toml",
+                ".clippy.toml"
+              ],
+              "enabled": true,
+              "languages": [
+                "rust"
+              ],
+              "name": "cargo-clippy",
+              "url": "https://doc.rust-lang.org/clippy/"
+            },
             "credo": {
               "capabilities": [
                 "ignore-line",
@@ -750,6 +778,11 @@
           },
           "description": "The list of linters",
           "type": "object"
+        },
+        "linter.runOnTextChange": {
+          "default": false,
+          "description": "Run linters on text change",
+          "type": "boolean"
         }
       }
     }
@@ -772,7 +805,7 @@
     "mocha": "^8.4.0",
     "ts-loader": "^9.2.3",
     "typescript": "^4.3.2",
-    "vscode-linter-api": "0.0.0-beta2",
+    "vscode-linter-api": "0.0.0-beta5",
     "vscode-test": "^1.5.2",
     "webpack": "^5.42.0",
     "webpack-cli": "^4.7.2"
@@ -784,6 +817,7 @@
   "icon": "icon.png",
   "keywords": [
     "brakeman",
+    "cargo-clippy",
     "credo",
     "gherkin-lint",
     "dart",

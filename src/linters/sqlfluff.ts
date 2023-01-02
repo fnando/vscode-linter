@@ -43,11 +43,11 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
     });
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const parseFixOutput: LinterParseFixOutputFunction = ({ stdout }) =>
-  stdout;
+  Promise.resolve(stdout);
 
 export const getIgnoreEolPragma: LinterGetIgnoreEolPragmaFunction = ({
   line,
@@ -63,10 +63,12 @@ export const getIgnoreEolPragma: LinterGetIgnoreEolPragmaFunction = ({
 
   existingRules = uniq(sortBy(existingRules));
 
-  return [
-    (matches && matches[1]) || "",
-    `--noqa: disable=${existingRules.join(", ")}`,
-  ].join(" ");
+  return Promise.resolve(
+    [
+      (matches && matches[1]) || "",
+      `--noqa: disable=${existingRules.join(", ")}`,
+    ].join(" "),
+  );
 };
 
 function getDocsUrl(code: string): string {

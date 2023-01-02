@@ -60,8 +60,8 @@ export const getOffenses: LinterGetOffensesFunction = ({ stderr, uri }) => {
     offenses.push(offense);
   });
 
-  return offenses;
+  return Promise.resolve(offenses);
 };
 
 export const parseFixOutput: LinterParseFixOutputFunction = ({ stdout }) =>
-  stdout;
+  Promise.resolve(stdout);
