@@ -2,7 +2,7 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
-## Unreleased
+## 0.0.19
 
 - Clear diagnostics when switching files to avoid displaying stale entries.
 - Remove double `debounce` wrapping, which was adding another 200ms wait on text
