@@ -16,6 +16,13 @@ import { findRootDir } from "../helpers/findRootDir";
 import { md5 } from "../helpers/md5";
 import * as cache from "../helpers/cache";
 
+type DiagnosticsBySourceParams = {
+  source: string;
+  diagnosticCollection: vscode.DiagnosticCollection;
+  document: vscode.TextDocument;
+  offenses: LinterOffense[];
+};
+
 const isWindows = os.platform() === "win32";
 
 function convertOffenseToDiagnostic(offense: LinterOffense): vscode.Diagnostic {
@@ -76,12 +83,7 @@ function replaceDiagnosticsBySource({
   offenses,
   document,
   diagnosticCollection,
-}: {
-  source: string;
-  diagnosticCollection: vscode.DiagnosticCollection;
-  document: vscode.TextDocument;
-  offenses: LinterOffense[];
-}) {
+}: DiagnosticsBySourceParams) {
   const diagnostics = diagnosticCollection
     .get(document.uri)
     ?.filter((diagnostic) => diagnostic.source !== source);
@@ -106,6 +108,8 @@ async function setFreshDiagnostics({
   availableLinters: Linters;
   offenses: LinterOffense[];
 }) {
+  const diagnosticsBySource: DiagnosticsBySourceParams[] = [];
+
   for (let linterName of matchingLinters) {
     const linterConfig = availableLinters[linterName];
 
@@ -148,7 +152,7 @@ async function setFreshDiagnostics({
 
     const started = Date.now();
 
-    const _offenses = await lint({
+    const linterOffenses = await lint({
       rootDir,
       command,
       uri: document.uri,
@@ -160,16 +164,20 @@ async function setFreshDiagnostics({
 
     debug(`${linterConfig.name}'s command took`, `${ended - started}ms`);
 
-    offenses.push(..._offenses);
+    offenses.push(...linterOffenses);
 
-    cache.write(cacheFilePath, _offenses);
-    replaceDiagnosticsBySource({
+    cache.write(cacheFilePath, linterOffenses);
+
+    diagnosticsBySource.push({
       source: linterConfig.name,
       document,
       diagnosticCollection,
-      offenses: _offenses,
+      offenses: linterOffenses,
     });
   }
+
+  diagnosticCollection.clear();
+  diagnosticsBySource.forEach((d) => replaceDiagnosticsBySource(d));
 }
 
 export async function run(
@@ -177,7 +185,10 @@ export async function run(
   diagnosticCollection: vscode.DiagnosticCollection,
   offenses: LinterOffense[],
 ) {
-  if (["code-runner-output", "Log"].includes(document.languageId)) {
+  if (
+    !document.languageId ||
+    ["code-runner-output", "Log"].includes(document.languageId)
+  ) {
     return;
   }
 
@@ -188,15 +199,16 @@ export async function run(
       availableLinters[name].enabled,
   );
 
+  debug("Language id:", document.languageId);
+
   if (!matchingLinters.length) {
     debug("No linters found for", JSON.stringify(document.languageId));
+    return;
   }
 
-  debug("Language id:", document.languageId);
   debug("Matching linters:", matchingLinters);
 
   offenses.length = 0;
-  diagnosticCollection.clear();
 
   const cacheEnabled = (
     vscode.workspace.getConfiguration("linter") as unknown as Config
@@ -205,6 +217,7 @@ export async function run(
   debug("Reading from cache?", cacheEnabled);
 
   if (cacheEnabled) {
+    diagnosticCollection.clear();
     setDiagnosticsFromCache({
       document,
       matchingLinters,

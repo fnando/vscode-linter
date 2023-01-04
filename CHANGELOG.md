@@ -2,6 +2,12 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Fix linting on text change.
+- Improve how diagnostics are refreshed.
+- Add configurable delay for on change linting; defaults to `300`ms.
+
 ## 0.0.17
 
 - Add cargo-clippy (rust) support.

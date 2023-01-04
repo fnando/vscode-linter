@@ -36,5 +36,5 @@ export function log(...args: any[]) {
 }
 
 export function debug(...args: any) {
-  log(`\n[${new Date().toLocaleString()}]`, ...args);
+  log(...args);
 }

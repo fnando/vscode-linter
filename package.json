@@ -18,6 +18,11 @@
           "description": "Run command with debug options",
           "type": "boolean"
         },
+        "linter.delay": {
+          "default": 300,
+          "description": "The delay in milliseconds before running linters on text change",
+          "type": "number"
+        },
         "linter.enabled": {
           "default": true,
           "description": "Enable or disable code linting globally",
@@ -780,7 +785,7 @@
           "type": "object"
         },
         "linter.runOnTextChange": {
-          "default": false,
+          "default": true,
           "description": "Run linters on text change",
           "type": "boolean"
         }

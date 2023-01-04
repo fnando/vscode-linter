@@ -9,5 +9,6 @@ export type Config = {
   cache: boolean;
   debug: boolean;
   linters: Linters;
+  delay: number;
   runOnTextChange: boolean;
 };

@@ -17,15 +17,12 @@ export function activate(context: vscode.ExtensionContext) {
   const diagnostics = vscode.languages.createDiagnosticCollection("linter");
   const codeActionProvider = new CodeActionProvider(diagnostics, offenses);
 
-  const handleDocument = debounce((document) => {
-    runLinters(document, diagnostics, offenses);
-  }, 200);
+  debug("onchange delay:", config.delay);
 
-  const handleEditor = debounce((editor) => {
-    if (editor) {
-      runLinters(editor.document, diagnostics, offenses);
-    }
-  }, 200);
+  const handleDocument = debounce((document: vscode.TextDocument) => {
+    runLinters(document, diagnostics, offenses);
+    document.getText();
+  }, config.delay);
 
   // Diagnostics code ----------------------------------------------------------
   if (vscode.window.activeTextEditor) {
@@ -33,17 +30,21 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument(handleDocument),
-    vscode.window.onDidChangeActiveTextEditor(handleEditor),
+    vscode.window.onDidChangeActiveTextEditor(
+      (editor) => editor?.document && handleDocument(editor?.document),
+    ),
   );
 
   if (config.runOnTextChange) {
     debug("running linters on change is enabled");
     subscriptions.push(
-      vscode.workspace.onDidChangeTextDocument(handleDocument),
+      vscode.workspace.onDidChangeTextDocument(({ document }) =>
+        handleDocument(document),
+      ),
     );
   } else {
     debug("running linters on change is disabled");
+    subscriptions.push(vscode.workspace.onDidSaveTextDocument(handleDocument));
   }
 
   // CodeAction code -----------------------------------------------------------
