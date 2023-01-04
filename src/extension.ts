@@ -9,7 +9,6 @@ import { debug } from "./helpers/debug";
 
 export function activate(context: vscode.ExtensionContext) {
   const config = getConfig();
-  const runLinters = debounce(run, 200);
   const runFix = debounce(fix, 200);
   const runIgnore = debounce(ignore, 200);
   const { subscriptions } = context;
@@ -20,19 +19,20 @@ export function activate(context: vscode.ExtensionContext) {
   debug("onchange delay:", config.delay);
 
   const handleDocument = debounce((document: vscode.TextDocument) => {
-    runLinters(document, diagnostics, offenses);
+    run(document, diagnostics, offenses);
     document.getText();
   }, config.delay);
 
   // Diagnostics code ----------------------------------------------------------
   if (vscode.window.activeTextEditor) {
-    runLinters(vscode.window.activeTextEditor.document, diagnostics, offenses);
+    run(vscode.window.activeTextEditor.document, diagnostics, offenses);
   }
 
   subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(
-      (editor) => editor?.document && handleDocument(editor?.document),
-    ),
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      diagnostics.clear();
+      editor?.document && run(editor.document, diagnostics, offenses);
+    }),
   );
 
   if (config.runOnTextChange) {

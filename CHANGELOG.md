@@ -2,6 +2,12 @@
 
 All notable changes to the "linter" extension will be documented in this file.
 
+## Unreleased
+
+- Clear diagnostics when switching files to avoid displaying stale entries.
+- Remove double `debounce` wrapping, which was adding another 200ms wait on text
+  change linting.
+
 ## 0.0.18
 
 - Fix linting on text change.
