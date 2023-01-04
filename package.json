@@ -863,5 +863,5 @@
     "vscode:prepublish": "yarn run package",
     "watch": "webpack --watch"
   },
-  "version": "0.0.17"
+  "version": "0.0.18"
 }
