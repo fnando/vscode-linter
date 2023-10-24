@@ -771,7 +771,8 @@
               "configFiles": [
                 ".yamllint.yml",
                 ".yamllint.yaml",
-                ".yamllint"
+                ".yamllint",
+                ".yaml-lint.yml"
               ],
               "enabled": true,
               "languages": [
