@@ -15,9 +15,6 @@ import { debug } from "../helpers/debug";
 type ClippyEntry = {
   reason: string;
   message: ClippyMessage;
-  target?: {
-    src_path: string;
-  };
 };
 
 type ClippyMessageChildren = {
@@ -70,8 +67,6 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   const offenses: LinterOffense[] = [];
 
   entries.forEach((entry: ClippyEntry) => {
-    const src = "file://" + (entry.target?.src_path ?? "");
-
     if (entry.reason !== "compiler-message") {
       debug("unexpected reason:", entry.reason);
       return;
