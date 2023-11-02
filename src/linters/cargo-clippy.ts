@@ -15,9 +15,6 @@ import { debug } from "../helpers/debug";
 type ClippyEntry = {
   reason: string;
   message: ClippyMessage;
-  target?: {
-    src_path: string;
-  };
 };
 
 type ClippyMessageChildren = {
@@ -42,6 +39,7 @@ type ClippySpan = {
   column_end: number;
   line_start: number;
   line_end: number;
+  file_name: string;
   suggested_replacement?: string;
 };
 
@@ -69,8 +67,6 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
   const offenses: LinterOffense[] = [];
 
   entries.forEach((entry: ClippyEntry) => {
-    const src = "file://" + (entry.target?.src_path ?? "");
-
     if (entry.reason !== "compiler-message") {
       debug("unexpected reason:", entry.reason);
       return;
@@ -78,11 +74,6 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
 
     if (!entry.message.spans?.length) {
       debug("no spans:", entry);
-      return;
-    }
-
-    if (src !== uri.toString()) {
-      debug("offense is for another file", { src, uri: uri.toString() });
       return;
     }
 
@@ -104,7 +95,13 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
         line_end: lineEnd,
         column_start: columnStart,
         column_end: columnEnd,
+        file_name: fileName,
       } = span;
+
+      if (!uri.toString().endsWith(span.file_name.replace('\\', "/"))) {
+        debug("span is for another file", { span_file_name: span.file_name, current_document: uri.toString() });
+        return;
+      }
 
       let replacement = "";
 
