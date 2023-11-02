@@ -42,6 +42,7 @@ type ClippySpan = {
   column_end: number;
   line_start: number;
   line_end: number;
+  file_name: string;
   suggested_replacement?: string;
 };
 
@@ -81,11 +82,6 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
       return;
     }
 
-    if (src !== uri.toString()) {
-      debug("offense is for another file", { src, uri: uri.toString() });
-      return;
-    }
-
     const help = entry.message.children?.find(
       (child) =>
         child.level === "help" &&
@@ -104,7 +100,13 @@ export const getOffenses: LinterGetOffensesFunction = ({ stdout, uri }) => {
         line_end: lineEnd,
         column_start: columnStart,
         column_end: columnEnd,
+        file_name: fileName,
       } = span;
+
+      if (!uri.toString().endsWith(span.file_name.replace('\\', "/"))) {
+        debug("span is for another file", { span_file_name: span.file_name, current_document: uri.toString() });
+        return;
+      }
 
       let replacement = "";
 
